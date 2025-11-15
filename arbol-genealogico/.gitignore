@@ -1,11 +1,30 @@
-# Godot 4+ specific ignores
-.import/
-.mono/
-.godot/
-export.cfg
-export_presets.cfg
-.vs/
+# Archivos de compilación
 bin/
 obj/
+*.exe
+*.dll
+*.pdb
+*.cache
+*.log
 
-/android/
+# Archivos de usuario y configuraciones locales
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.uid
+
+# Configuraciones temporales
+.vs/
+.idea/
+.DS_Store
+
+# Archivos de Godot generados automáticamente
+.import/
+.export/
+.exported/
+.godot/
+
+# Otros
+Thumbs.db
+

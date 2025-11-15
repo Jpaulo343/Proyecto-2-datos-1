@@ -12,7 +12,11 @@ config_version=5
 
 config/name="arbol-genealogico"
 run/main_scene="uid://jgksdpqt8lt"
-config/features=PackedStringArray("4.5", "Forward Plus")
+config/features=PackedStringArray("4.5", "C#", "Forward Plus")
+
+[autoload]
+
+GlobalData="*res://scripts/GlobalData.cs"
 
 [dotnet]
 
