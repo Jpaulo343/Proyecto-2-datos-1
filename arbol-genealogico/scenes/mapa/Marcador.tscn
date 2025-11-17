@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=3 uid="uid://8mj3wbsl3up6"]
+
+[ext_resource type="Texture2D" uid="uid://cfjcc6itl40os" path="res://assets/imagenes/default.jpg" id="1_nmdui"]
+[ext_resource type="Script" uid="uid://b1f0hhgaggxih" path="res://scripts/mapa/Marcador.cs" id="1_rtqtt"]
+
+[node name="Marcador" type="Node2D" node_paths=PackedStringArray("foto", "NameLabel")]
+script = ExtResource("1_rtqtt")
+foto = NodePath("foto")
+NameLabel = NodePath("NameLabel")
+
+[node name="foto" type="Sprite2D" parent="."]
+position = Vector2(53.000004, 51)
+scale = Vector2(0.1386719, 0.13346356)
+texture = ExtResource("1_nmdui")
+
+[node name="NameLabel" type="Label" parent="."]
+modulate = Color(0, 0, 0, 1)
+offset_left = 1.0
+offset_top = 107.0
+offset_right = 105.0
+offset_bottom = 130.0
+theme_override_font_sizes/font_size = 12
+text = "Nombre"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
