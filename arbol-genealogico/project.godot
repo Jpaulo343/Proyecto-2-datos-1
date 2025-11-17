@@ -11,13 +11,22 @@ config_version=5
 [application]
 
 config/name="arbol-genealogico"
+<<<<<<< Updated upstream
 run/main_scene="uid://jgksdpqt8lt"
 config/features=PackedStringArray("4.5", "C#", "Forward Plus")
 
 [autoload]
 
 GlobalData="*res://scripts/GlobalData.cs"
+=======
+run/main_scene="uid://dn0guvi5iiije"
+config/features=PackedStringArray("4.5", "C#", "Forward Plus")
+>>>>>>> Stashed changes
 
 [dotnet]
 
 project/assembly_name="arbol-genealogico"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/gut/plugin.cfg")
