@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://jgksdpqt8lt"]
+
+[ext_resource type="Script" uid="uid://ds3egcf3urq2y" path="res://scripts/mapa/MainMapa.cs" id="1_v373u"]
+[ext_resource type="Texture2D" uid="uid://dytavbjvjfdx3" path="res://assets/world map.svg" id="2_p106v"]
+
+[node name="MainMapa" type="Node2D"]
+script = ExtResource("1_v373u")
+
+[node name="MapaMundial" type="Sprite2D" parent="."]
+position = Vector2(-1, -5)
+scale = Vector2(0.892, 0.9754959)
+texture = ExtResource("2_p106v")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(0.7, 0.7)
