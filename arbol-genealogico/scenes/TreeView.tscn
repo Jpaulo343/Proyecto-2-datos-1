@@ -1,0 +1,30 @@
+[gd_scene load_steps=2 format=3 uid="uid://cion08sieh272"]
+
+[ext_resource type="Script" uid="uid://clxell2c7qtob" path="res://scripts/TreeView.cs" id="1_nh8di"]
+
+[node name="TreeView" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_nh8di")
+
+[node name="ZoomArea" type="Control" parent="."]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 1
+
+[node name="Graph" type="Control" parent="ZoomArea"]
+custom_minimum_size = Vector2(2000, 2000)
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VolverBtn" type="Button" parent="."]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+text = "Volver"
