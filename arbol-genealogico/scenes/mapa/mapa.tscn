@@ -1,9 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://jgksdpqt8lt"]
+[gd_scene load_steps=4 format=3 uid="uid://jgksdpqt8lt"]
 
-[ext_resource type="Script" uid="uid://bhfxey57yxx2t" path="res://scripts/mapa/MainMapa.cs" id="1_v373u"]
+[ext_resource type="Script" uid="uid://b5qm6eu4gojsw" path="res://scripts/mapa/MainMapa.cs" id="1_v373u"]
 [ext_resource type="Texture2D" uid="uid://dytavbjvjfdx3" path="res://assets/world map.svg" id="2_p106v"]
-[ext_resource type="Script" uid="uid://duqv21kl2q2yn" path="res://scripts/mapa/Camera2d.cs" id="3_p106v"]
-[ext_resource type="Texture2D" uid="uid://cfjcc6itl40os" path="res://assets/imagenes/default.jpg" id="4_24wre"]
+[ext_resource type="Script" uid="uid://otrvx6jvimug" path="res://scripts/mapa/Camera2d.cs" id="3_p106v"]
 
 [node name="MainMapa" type="Node2D" node_paths=PackedStringArray("MapaMundial")]
 script = ExtResource("1_v373u")
@@ -17,38 +16,3 @@ texture = ExtResource("2_p106v")
 [node name="Camera2d" type="Camera2D" parent="."]
 zoom = Vector2(0.15, 0.15)
 script = ExtResource("3_p106v")
-
-[node name="CanvasLayer" type="CanvasLayer" parent="Camera2d"]
-
-[node name="Panel" type="Panel" parent="Camera2d/CanvasLayer"]
-offset_left = -643.0
-offset_top = -842.0
-offset_right = 643.0
-offset_bottom = 544.0
-
-[node name="Label" type="Label" parent="Camera2d/CanvasLayer/Panel"]
-layout_mode = 0
-offset_left = 271.0
-offset_top = 26.0
-offset_right = 1023.0
-offset_bottom = 159.0
-theme_override_font_sizes/font_size = 64
-text = "	Nombre"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="TextureRect" type="TextureRect" parent="Camera2d/CanvasLayer/Panel"]
-layout_mode = 0
-offset_left = 283.0
-offset_top = 194.0
-offset_right = 1016.0
-offset_bottom = 834.0
-texture = ExtResource("4_24wre")
-expand_mode = 1
-
-[node name="Button" type="Button" parent="Camera2d/CanvasLayer/Panel"]
-layout_mode = 0
-offset_right = 177.0
-offset_bottom = 168.0
-theme_override_font_sizes/font_size = 78
-text = "X"

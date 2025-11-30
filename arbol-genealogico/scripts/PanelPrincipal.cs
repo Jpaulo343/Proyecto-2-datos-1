@@ -41,7 +41,7 @@ public partial class PanelPrincipal : Control
 	private void OnVerMapaPressed()
 	{
 		GD.Print("Ir al mapa");
-		GetTree().ChangeSceneToFile("res://scenes/mapa.tscn");
+		GetTree().ChangeSceneToFile("res://scenes/mapa/mapa.tscn");
 	}
 
 	private void OnSalirPressed()
