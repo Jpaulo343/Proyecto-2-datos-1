@@ -1,0 +1,122 @@
+[gd_scene load_steps=2 format=3 uid="uid://bi0gct1j346bw"]
+
+[ext_resource type="Script" uid="uid://cwxsodrsj21rl" path="res://scripts/AgregarPersona.cs" id="1_38erw"]
+
+[node name="AgregarPersona" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_38erw")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Titulo" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="NombreCont" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Nombre" type="Label" parent="MarginContainer/VBoxContainer/NombreCont"]
+layout_mode = 2
+text = "Nombre:"
+
+[node name="NombreInput" type="LineEdit" parent="MarginContainer/VBoxContainer/NombreCont"]
+layout_mode = 2
+
+[node name="CedulaCont" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Cédula" type="Label" parent="MarginContainer/VBoxContainer/CedulaCont"]
+layout_mode = 2
+text = "Cedula:"
+
+[node name="CedulaInput" type="LineEdit" parent="MarginContainer/VBoxContainer/CedulaCont"]
+layout_mode = 2
+
+[node name="FechaCont" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Fecha Nacimiento" type="Label" parent="MarginContainer/VBoxContainer/FechaCont"]
+layout_mode = 2
+text = "Fecha de Nacimineto:"
+
+[node name="FechaInput" type="LineEdit" parent="MarginContainer/VBoxContainer/FechaCont"]
+layout_mode = 2
+
+[node name="ViveCont" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Vive" type="Label" parent="MarginContainer/VBoxContainer/ViveCont"]
+layout_mode = 2
+text = "Vive?"
+
+[node name="ViveCheck" type="CheckBox" parent="MarginContainer/VBoxContainer/ViveCont"]
+layout_mode = 2
+
+[node name="FotoCont" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Foto" type="Label" parent="MarginContainer/VBoxContainer/FotoCont"]
+layout_mode = 2
+text = "Foto:"
+
+[node name="SeleccionarFotoBtn" type="Button" parent="MarginContainer/VBoxContainer/FotoCont"]
+layout_mode = 2
+text = "Seleccionar Foto"
+
+[node name="FotoPreview" type="TextureRect" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+stretch_mode = 6
+
+[node name="PadreCont" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="PadrreLabel" type="Label" parent="MarginContainer/VBoxContainer/PadreCont"]
+layout_mode = 2
+text = "Padre"
+
+[node name="PadreCombo" type="OptionButton" parent="MarginContainer/VBoxContainer/PadreCont"]
+layout_mode = 2
+
+[node name="MadreCont" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="MadreLabel" type="Label" parent="MarginContainer/VBoxContainer/MadreCont"]
+layout_mode = 2
+text = "Madre"
+
+[node name="MadreCombo" type="OptionButton" parent="MarginContainer/VBoxContainer/MadreCont"]
+layout_mode = 2
+
+[node name="BotonesCont" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="GuardarBtn" type="Button" parent="MarginContainer/VBoxContainer/BotonesCont"]
+custom_minimum_size = Vector2(300, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Guardar "
+
+[node name="VolverBtn" type="Button" parent="MarginContainer/VBoxContainer/BotonesCont"]
+custom_minimum_size = Vector2(300, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Volver"

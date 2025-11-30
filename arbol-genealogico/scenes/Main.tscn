@@ -1,6 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://dn0guvi5iiije"]
+[gd_scene load_steps=3 format=3 uid="uid://b8j10cwxx2vnx"]
 
-[ext_resource type="Script" uid="uid://dxneklujmnu0c" path="res://Main.cs" id="1_elqb8"]
+[ext_resource type="Script" uid="uid://l26mcgv1w1ex" path="res://Main.cs" id="1_elqb8"]
+[ext_resource type="PackedScene" uid="uid://cfsxqsy7koyak" path="res://scenes/PanelPrincipal.tscn" id="2_rvslj"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_elqb8")
+
+[node name="PanelPrincipal" parent="." instance=ExtResource("2_rvslj")]

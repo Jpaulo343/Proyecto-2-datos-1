@@ -1,25 +1,26 @@
 using Godot;
-using System;
 
 public partial class Main : Node
 {
+	public static Main Instance { get; private set; }
+	public ArbolGenealogico Arbol { get; private set; }
+
 	public override void _Ready()
 	{
-		GD.Print("Escena cargada.");
+		Instance = this;
+		Arbol = new ArbolGenealogico();
 
-		var arbol = new ArbolGenealogico();
+		// Intentar cargar guardado (devuelve true si cargó)
+		var userPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "arbol.json");
+		Arbol.CargarDesdeArchivo(userPath);
 
-		var juan = new Persona("Juan", "101");
-		var ana = new Persona("Ana", "102");
-		var pedro = new Persona("Pedro", "103");
+		GD.Print("Main cargado. Árbol listo.");
+	}
 
-		arbol.AgregarFamiliar(juan);
-		arbol.AgregarFamiliar(ana);
-		arbol.AgregarFamiliar(pedro, padre: juan, madre: ana);
-
-		GD.Print($"Total personas: {arbol.Personas.Count}");
-		GD.Print($"Padre de Pedro: {pedro.Padre.Nombre}");
-		GD.Print($"Madre de Pedro: {pedro.Madre.Nombre}");
-		GD.Print($"Hijos de Juan: {juan.Hijos.Count}");
+	public void GuardarArbolEnDisco()
+	{
+		var userPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "arbol.json");
+		Arbol.GuardarAArchivo(userPath);
+		GD.Print("Árbol guardado en disco.");
 	}
 }
