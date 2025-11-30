@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bi0gct1j346bw"]
 
-[ext_resource type="Script" uid="uid://cwxsodrsj21rl" path="res://scripts/AgregarPersona.cs" id="1_38erw"]
+[ext_resource type="Script" uid="uid://c82hj5eu0nkmr" path="res://scripts/AgregarPersona.cs" id="1_38erw"]
 
 [node name="AgregarPersona" type="Control"]
 layout_mode = 3
@@ -35,6 +35,7 @@ layout_mode = 2
 text = "Nombre:"
 
 [node name="NombreInput" type="LineEdit" parent="MarginContainer/VBoxContainer/NombreCont"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 
 [node name="CedulaCont" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
@@ -45,6 +46,7 @@ layout_mode = 2
 text = "Cedula:"
 
 [node name="CedulaInput" type="LineEdit" parent="MarginContainer/VBoxContainer/CedulaCont"]
+custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 
 [node name="FechaCont" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
@@ -55,6 +57,7 @@ layout_mode = 2
 text = "Fecha de Nacimineto:"
 
 [node name="FechaInput" type="LineEdit" parent="MarginContainer/VBoxContainer/FechaCont"]
+custom_minimum_size = Vector2(40, 0)
 layout_mode = 2
 
 [node name="ViveCont" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
@@ -83,7 +86,31 @@ custom_minimum_size = Vector2(200, 200)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-stretch_mode = 6
+expand_mode = 4
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Introduce las coordenadas de la persona"
+
+[node name="CoordCont" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Coordenada X" type="Label" parent="MarginContainer/VBoxContainer/CoordCont"]
+layout_mode = 2
+text = "Latitud:"
+
+[node name="LatInput" type="LineEdit" parent="MarginContainer/VBoxContainer/CoordCont"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/CoordCont"]
+layout_mode = 2
+text = "Longitud"
+horizontal_alignment = 1
+
+[node name="LonInput" type="LineEdit" parent="MarginContainer/VBoxContainer/CoordCont"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
 
 [node name="PadreCont" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
