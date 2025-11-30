@@ -5,6 +5,7 @@ public partial class Marcador : Node2D
 {
 	[Export] public Sprite2D foto;
 	[Export] public Label NameLabel;
+	[Export] public Node2D Punto;
 	
 	// Tamaño máximo del recuadro donde debe caber la imagen
 	private Vector2 targetSize = new Vector2(100, 100);
@@ -14,8 +15,7 @@ public partial class Marcador : Node2D
 	{
 		// Cargar imagen por defecto 
 		defaultImage = GD.Load<Texture2D>("res://assets/imagenes/default.jpg");
-		GD.Print("default:");
-		GD.Print(defaultImage);
+		
 	}
 
 	public void SetData(string name, Texture2D imagen)
@@ -25,11 +25,8 @@ public partial class Marcador : Node2D
 		Texture2D textura=null;
 		if (imagen==null){textura = defaultImage;}
 		else{textura = imagen;}
-		GD.Print(imagen);
-		GD.Print(textura);
 		ResizeImage(textura);
 		foto.Texture=textura;
-
 	}
 
 	private void ResizeImage(Texture2D tex)
@@ -44,7 +41,6 @@ public partial class Marcador : Node2D
 
 		foto.Scale = new Vector2(scaleFactor, scaleFactor);
 
-		// Opcional — centrar la foto si no está centrada
-		// foto.Position = Vector2.Zero;
+
 	}
 }
