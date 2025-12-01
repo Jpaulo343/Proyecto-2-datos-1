@@ -16,3 +16,11 @@ texture = ExtResource("2_p106v")
 [node name="Camera2d" type="Camera2D" parent="."]
 zoom = Vector2(0.15, 0.15)
 script = ExtResource("3_p106v")
+
+[node name="Button_volver" type="Button" parent="Camera2d"]
+offset_left = -220.0
+offset_top = 1315.0
+offset_right = 229.0
+offset_bottom = 1431.0
+theme_override_font_sizes/font_size = 69
+text = "Volver"

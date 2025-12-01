@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://2gvvx47bo220"]
 
-[ext_resource type="Script" uid="uid://q5hqq7sahevg" path="res://scripts/ListaPersonas.cs" id="1_0wgh0"]
+[ext_resource type="Script" uid="uid://bigdgo5g8e461" path="res://scripts/ListaPersonas.cs" id="1_0wgh0"]
 
 [node name="ListaPersonas" type="Control"]
 layout_mode = 3

@@ -4,89 +4,101 @@ using System.Collections.Generic;
 
 public partial class MainMapa : Node2D
 {
-	[Export] public Sprite2D MapaMundial;
+	
+
+		
+	private GrafoFamilia grafo;
+
+	[Export] private Sprite2D MapaMundial;
+
 	public override void _Ready()
 	{
-		// Carga los usuario previamente creados y los coloca en el mapa
-		var usuarios = CrearUsuariosPrueba();
-		foreach(UsuarioPrueba u in usuarios)
+		// 1. Crear el grafo y llenarlo con miembros
+		grafo = CrearGrafoDePrueba();
+		var volverBtn = GetNode<Button>("Camera2d/Button_volver");
+		volverBtn.Pressed += OnVolverPressed;
+
+		// 2. Recorrer nodos del grafo
+		foreach (FamilyMember miembro in grafo.ObtenerTodosLosMiembros())
 		{
-			
-			GD.Print("se va a crear el usuario") ;
-			crearMarcador(u);
-			GD.Print("se creo el usuario") ;
+			GD.Print("Creando marcador para: " + miembro.Nombre);
+			crearMarcador(miembro);
 		}
 	}
-	
-	public void crearMarcador(UsuarioPrueba u)
-	{
 
-		// 1. Cargar escena
+	private void crearMarcador(FamilyMember miembro)
+	{
 		var escena = GD.Load<PackedScene>("res://scenes/mapa/marcador.tscn");
-
-		// 2. Instanciar SIN genérico
 		var instancia = escena.Instantiate();
-
-		// 3. Probar cast
 		var marcador = instancia as Marcador;
-		
-		//Añadirlo como hijo al mapa
+
 		AddChild(marcador);
-		
-		
-		//Configurar datos
-		marcador.SetData(u.nombre,null);
-		//Posicionar en el mapa
-		marcador.Position =ConvertirCordenadas(u.x,u.y);   
-		
-		GD.Print("se añadió el marcador de "+u.nombre) ;
+		Texture2D texturaFinal = null;
+
+			// Si el miembro tiene foto
+			if (!string.IsNullOrEmpty(miembro.FotoPath))
+			{
+				try
+				{
+					Image img = Image.LoadFromFile(miembro.FotoPath);
+					texturaFinal = ImageTexture.CreateFromImage(img);
+				}
+				catch (Exception e)
+				{
+					GD.PrintErr("No se pudo cargar la foto de: ", miembro.Nombre, " - ", miembro.FotoPath);
+					GD.PrintErr(e.Message);
+				}
+			}
+
+		marcador.SetData(miembro.Nombre, texturaFinal);
+
+		marcador.Position = ConvertirCordenadas(
+			(float)miembro.Latitud,
+			(float)miembro.Longitud
+		);
 	}
-	
-	public Vector2 ConvertirCordenadas(float lat, float lon)
+
+	private GrafoFamilia CrearGrafoDePrueba()
 	{
-		float baseWidth=MapaMundial.Scale.X;
-		float baseHeight=MapaMundial.Scale.Y;
-		float width = MapaMundial.Texture.GetSize().X*baseWidth;
-		float height = MapaMundial.Texture.GetSize().Y*baseHeight;
-		 // Posición del mapa en el mundo de Godot
+		var g = new GrafoFamilia();
+
+		var jean = new FamilyMember("1", "Jean", 9.9, -84.0,"C:/Users/jpaul/OneDrive/Im\u00E1genes/math cat.jpg");
+		var juan = new FamilyMember("2", "Juan", 0, 0);
+		
+		var pepito = new FamilyMember("3", "Pepito", 60.7, 97.4);
+		var islandia = new FamilyMember("4", "Islandia", 64.88, -18.19);
+
+		// Añadir nodos y aristas
+		g.AgregarArista(jean, juan);
+		g.AgregarArista(juan, pepito);
+		g.AgregarArista(pepito, islandia);
+
+		return g;
+	}
+
+	private Vector2 ConvertirCordenadas(float lat, float lon)
+	{
+		float baseWidth = MapaMundial.Scale.X;
+		float baseHeight = MapaMundial.Scale.Y;
+		float width = MapaMundial.Texture.GetSize().X * baseWidth;
+		float height = MapaMundial.Texture.GetSize().Y * baseHeight;
+
 		Vector2 mapPos = MapaMundial.Position;
 
-		// Conversión dentro del mapa sin offset
 		float x = (lon + 180f) / 360f * width;
 		float y = (90f - lat) / 180f * height;
 
-		// Ajuste porque el mapa está centrado
 		x -= width / 2f;
 		y -= height / 2f;
 
-		// Ajuste por la posición del mapa
 		x += mapPos.X;
 		y += mapPos.Y;
+
 		return new Vector2(x, y);
 	}
-
-	//A partir de aqui son funciones de prueba
-	public List<UsuarioPrueba> CrearUsuariosPrueba()
-	{
-		List<UsuarioPrueba> listaUsuarios = new();
-		listaUsuarios.Add(new UsuarioPrueba("Jean",0f,0f));
-		listaUsuarios.Add(new UsuarioPrueba("Juan",9.857503f, -83.897971f));
-		listaUsuarios.Add(new UsuarioPrueba("Pepito",60.770374f, 97.469550f));
-		listaUsuarios.Add(new UsuarioPrueba("islandia",64.882908f, -18.191032f));
-		return listaUsuarios;
-	}
 	
-	public class UsuarioPrueba //clase de prueba para cargar usuarios al mapa
+	private void OnVolverPressed()
 	{
-		public string nombre;
-		public float x;
-		public float y;
-		
-		public UsuarioPrueba(string nombre,float x, float y)
-		{
-			this.nombre=nombre;
-			this.x=x;
-			this.y=y;
-		}
+		GetTree().ChangeSceneToFile("res://scenes/PanelPrincipal.tscn");
 	}
 }
