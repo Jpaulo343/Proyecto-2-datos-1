@@ -65,7 +65,7 @@ public partial class MainMapa : Node2D
 	{
 		var g = new GrafoFamilia();
 
-		var jean = new FamilyMember("1", "Jean", 9.9, -84.0,"C:/Users/jpaul/OneDrive/Im\u00E1genes/math cat.jpg");
+		var jean = new FamilyMember("1", "Jean Paulo Poveda Chaves", 9.9, -84.0,"C:/Users/jpaul/OneDrive/Im\u00E1genes/math cat.jpg");
 		var juan = new FamilyMember("2", "Juan", 0, 0);
 		
 		var pepito = new FamilyMember("3", "Pepito", 60.7, 97.4);

@@ -19,13 +19,16 @@ texture = ExtResource("1_nmdui")
 
 [node name="NameLabel" type="Label" parent="."]
 modulate = Color(0, 0, 0, 1)
-offset_left = -142.0
-offset_top = -1.0
-offset_right = 145.0
-offset_bottom = 102.0
-theme_override_font_sizes/font_size = 75
-text = "nombre"
+custom_minimum_size = Vector2(160, 0)
+offset_left = -365.0
+offset_top = 1.0
+offset_right = 368.0
+offset_bottom = 104.0
+theme_override_font_sizes/font_size = 69
+text = "nombre paulo povedadsadasdadadasdada"
 horizontal_alignment = 1
+autowrap_mode = 2
+clip_text = true
 metadata/_edit_use_anchors_ = true
 
 [node name="Punto" type="Sprite2D" parent="."]

@@ -9,7 +9,6 @@ public partial class Marcador : Node2D
 	[Export] public Node2D Punto;
 	
 	// Tamaño máximo del recuadro donde debe caber la imagen
-	private Vector2 targetSize = new Vector2(100, 100);
 	private Texture2D defaultImage;
 	private String Nombre;
 
