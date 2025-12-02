@@ -60,6 +60,18 @@ public class GrafoFamilia
 		return adyacencia.Keys;
 	}
 
+	public FamilyMember ObtenerMiembroPorNombre(string nombre)
+	{
+		foreach (var miembro in adyacencia.Keys)
+		{
+			if (miembro.Nombre == nombre)   {
+				return miembro;
+			}
+		}
+
+		return null; // Si no se encuentra
+	}
+
 	private double Haversine(double lat1, double lon1, double lat2, double lon2)
 	{
 		const double R = 6371.0; // Radio de la Tierra en km
