@@ -1,147 +1,245 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.IO;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 public class ArbolGenealogico
 {
-	public Persona Raiz { get; private set; }
-	public List<Persona> Personas { get; private set; } = new List<Persona>();
+	public FamilyMember Raiz { get; private set; }
 
-	public void AgregarPersona(Persona p)
+	public ListaEnlazada<FamilyMember> Personas { get; private set; } = new ListaEnlazada<FamilyMember>();
+
+	public GrafoFamilia Grafo { get; private set; } = new GrafoFamilia();
+
+	// ---------------- ALTAS ----------------
+
+	public void AgregarPersona(FamilyMember p)
 	{
 		if (p == null) throw new ArgumentNullException("No se puede agregar una persona nula");
-		if (Personas.Any(x => x.Cedula == p.Cedula)) throw new Exception("Ya existe una persona con esa cédula");
-		Personas.Add(p);
+		if (BuscarPorCedula(p.Cedula) != null) throw new Exception("Ya existe una persona con esa cédula");
+
+		Personas.Añadir(p);
+		Grafo.AgregarNodo(p);
+
 		if (Raiz == null) Raiz = p;
 	}
 
-	public void AgregarFamiliar(Persona nueva, Persona padre = null, Persona madre = null)
+	public void AgregarFamiliar(FamilyMember nueva, FamilyMember padre = null, FamilyMember madre = null)
 	{
 		AgregarPersona(nueva);
+
 		if (padre != null) AsignarPadre(nueva, padre);
 		if (madre != null) AsignarMadre(nueva, madre);
 	}
 
-	public void AsignarPadre(Persona hijo, Persona padre)
+	// ---------------- RELACIONES ----------------
+
+	public void AsignarPadre(FamilyMember hijo, FamilyMember padre)
 	{
 		if (hijo == padre) throw new Exception("Una persona no puede ser su propio padre");
 		if (EsAncestro(hijo, padre)) throw new Exception("Ciclo detectado en el árbol");
-		if (hijo.Padre != null) hijo.Padre.Hijos.Remove(hijo);
+
+		// Quitar padre anterior
+		if (hijo.Padre != null)
+		{
+			hijo.Padre.Hijos.Eliminar(hijo);
+			Grafo.QuitarRelacion(hijo.Padre, hijo);
+		}
+
 		hijo.Padre = padre;
-		padre.Hijos.Add(hijo);
+		padre.Hijos.Añadir(hijo);
+
+		Grafo.AgregarArista(hijo, padre, true);
 	}
 
-	public void AsignarMadre(Persona hijo, Persona madre)
+	public void AsignarMadre(FamilyMember hijo, FamilyMember madre)
 	{
 		if (hijo == madre) throw new Exception("Una persona no puede ser su propia madre");
 		if (EsAncestro(hijo, madre)) throw new Exception("Ciclo detectado en el árbol");
-		if (hijo.Madre != null) hijo.Madre.Hijos.Remove(hijo);
+
+		if (hijo.Madre != null)
+		{
+			hijo.Madre.Hijos.Eliminar(hijo);
+			Grafo.QuitarRelacion(hijo.Madre, hijo);
+		}
+
 		hijo.Madre = madre;
-		madre.Hijos.Add(hijo);
+		madre.Hijos.Añadir(hijo);
+
+		Grafo.AgregarArista(hijo, madre, true);
 	}
 
-	private bool EsAncestro(Persona posibleAncestro, Persona persona)
+	private bool EsAncestro(FamilyMember posibleAncestro, FamilyMember persona)
 	{
 		if (persona == null) return false;
 		if (persona == posibleAncestro) return true;
+
 		return EsAncestro(posibleAncestro, persona.Padre) ||
 			   EsAncestro(posibleAncestro, persona.Madre);
 	}
 
-	public Persona BuscarPorCedula(string cedula) => Personas.FirstOrDefault(p => p.Cedula == cedula);
+	// ---------------- BÚSQUEDAS Y CONSULTAS ----------------
 
-	public List<Persona> ObtenerHermanos(Persona p)
+	public FamilyMember BuscarPorCedula(string cedula)
 	{
-		return Personas.Where(x =>
-			x != p &&
-			((x.Padre != null && x.Padre == p.Padre) ||
-			 (x.Madre != null && x.Madre == p.Madre))
-		).ToList();
+		if (cedula == null) return null;
+
+		Nodo<FamilyMember>? actual = Personas.Head;
+		while (actual != null)
+		{
+			if (actual.Value.Cedula == cedula)
+				return actual.Value;
+
+			actual = actual.Next;
+		}
+
+		return null;
 	}
 
-	public List<Persona> ObtenerAbuelos(Persona p)
+	public ListaEnlazada<FamilyMember> ObtenerHermanos(FamilyMember p)
 	{
-		var abuelos = new List<Persona>();
+		ListaEnlazada<FamilyMember> resultado = new ListaEnlazada<FamilyMember>();
+
+		Nodo<FamilyMember>? actual = Personas.Head;
+		while (actual != null)
+		{
+			var x = actual.Value;
+			if (x != p)
+			{
+				bool compartenPadre = (x.Padre != null && p.Padre != null && x.Padre == p.Padre);
+				bool compartenMadre = (x.Madre != null && p.Madre != null && x.Madre == p.Madre);
+
+				if (compartenPadre || compartenMadre)
+					resultado.Añadir(x);
+			}
+
+			actual = actual.Next;
+		}
+
+		return resultado;
+	}
+
+	public ListaEnlazada<FamilyMember> ObtenerAbuelos(FamilyMember p)
+	{
+		ListaEnlazada<FamilyMember> abuelos = new ListaEnlazada<FamilyMember>();
+
 		if (p.Padre != null)
 		{
-			if (p.Padre.Padre != null) abuelos.Add(p.Padre.Padre);
-			if (p.Padre.Madre != null) abuelos.Add(p.Padre.Madre);
+			if (p.Padre.Padre != null) abuelos.Añadir(p.Padre.Padre);
+			if (p.Padre.Madre != null) abuelos.Añadir(p.Padre.Madre);
 		}
+
 		if (p.Madre != null)
 		{
-			if (p.Madre.Padre != null) abuelos.Add(p.Madre.Padre);
-			if (p.Madre.Madre != null) abuelos.Add(p.Madre.Madre);
+			if (p.Madre.Padre != null) abuelos.Añadir(p.Madre.Padre);
+			if (p.Madre.Madre != null) abuelos.Añadir(p.Madre.Madre);
 		}
+
 		return abuelos;
 	}
 
-	public List<Persona> ObtenerDescendientes(Persona p)
+	public ListaEnlazada<FamilyMember> ObtenerDescendientes(FamilyMember p)
 	{
-		var lista = new List<Persona>();
-		foreach (var hijo in p.Hijos)
-		{
-			lista.Add(hijo);
-			lista.AddRange(ObtenerDescendientes(hijo));
-		}
-		return lista;
+		ListaEnlazada<FamilyMember> resultado = new ListaEnlazada<FamilyMember>();
+		AgregarDescendientesRec(p, resultado);
+		return resultado;
 	}
 
-	public bool EstanRelacionados(Persona a, Persona b)
+	private void AgregarDescendientesRec(FamilyMember p, ListaEnlazada<FamilyMember> acumulador)
+	{
+		foreach (var hijo in p.Hijos.Enumerar())
+		{
+			acumulador.Añadir(hijo);
+			AgregarDescendientesRec(hijo, acumulador);
+		}
+	}
+
+	public bool EstanRelacionados(FamilyMember a, FamilyMember b)
 	{
 		var ancestrosA = ObtenerAncestros(a);
 		var ancestrosB = ObtenerAncestros(b);
-		return ancestrosA.Intersect(ancestrosB).Any();
+
+		foreach (var x in ancestrosA.Enumerar())
+		{
+			foreach (var y in ancestrosB.Enumerar())
+			{
+				if (x == y) return true;
+			}
+		}
+
+		return false;
 	}
 
-	private List<Persona> ObtenerAncestros(Persona p)
+	private ListaEnlazada<FamilyMember> ObtenerAncestros(FamilyMember p)
 	{
-		var lista = new List<Persona>();
-		if (p.Padre != null)
-		{
-			lista.Add(p.Padre);
-			lista.AddRange(ObtenerAncestros(p.Padre));
-		}
-		if (p.Madre != null)
-		{
-			lista.Add(p.Madre);
-			lista.AddRange(ObtenerAncestros(p.Madre));
-		}
+		ListaEnlazada<FamilyMember> lista = new ListaEnlazada<FamilyMember>();
+		AgregarAncestrosRec(p, lista);
 		return lista;
 	}
 
+	private void AgregarAncestrosRec(FamilyMember p, ListaEnlazada<FamilyMember> acumulador)
+	{
+		if (p.Padre != null)
+		{
+			acumulador.Añadir(p.Padre);
+			AgregarAncestrosRec(p.Padre, acumulador);
+		}
+
+		if (p.Madre != null)
+		{
+			acumulador.Añadir(p.Madre);
+			AgregarAncestrosRec(p.Madre, acumulador);
+		}
+	}
+
 	// ---------------- ELIMINAR ----------------
-	public bool EliminarPersona(Persona p)
+
+	public bool EliminarPersona(FamilyMember p)
 	{
 		if (p == null) return false;
-		if (!Personas.Contains(p)) return false;
 
-		if (p.Padre != null) { p.Padre.Hijos.Remove(p); p.Padre = null; }
-		if (p.Madre != null) { p.Madre.Hijos.Remove(p); p.Madre = null; }
+		if (p.Padre != null)
+		{
+			p.Padre.Hijos.Eliminar(p);
+			Grafo.QuitarRelacion(p.Padre, p);
+			p.Padre = null;
+		}
 
-		foreach (var hijo in p.Hijos)
+		if (p.Madre != null)
+		{
+			p.Madre.Hijos.Eliminar(p);
+			Grafo.QuitarRelacion(p.Madre, p);
+			p.Madre = null;
+		}
+
+		foreach (var hijo in p.Hijos.Enumerar())
 		{
 			if (hijo.Padre == p) hijo.Padre = null;
 			if (hijo.Madre == p) hijo.Madre = null;
+			Grafo.QuitarRelacion(p, hijo);
 		}
-		p.Hijos.Clear();
 
-		if (Raiz == p) Raiz = Personas.FirstOrDefault(x => x != p);
+		p.Hijos = new ListaEnlazada<FamilyMember>();
 
-		Personas.Remove(p);
-		return true;
+		bool eliminado = Personas.Eliminar(p);
+
+		if (eliminado && Raiz == p)
+		{
+			Raiz = (Personas.Head != null) ? Personas.Head.Value : null;
+		}
+
+		Grafo.EliminarNodo(p);
+
+		return eliminado;
 	}
 
 	public bool EliminarPorCedula(string cedula)
 	{
 		var p = BuscarPorCedula(cedula);
-		if (p == null) return false;
 		return EliminarPersona(p);
 	}
 
 	// ---------------- JSON SAVE / LOAD ----------------
+
 	private class PersonaDto
 	{
 		public string Nombre { get; set; }
@@ -159,21 +257,36 @@ public class ArbolGenealogico
 	{
 		try
 		{
-			var listaDto = Personas.Select(p => new PersonaDto
-			{
-				Nombre = p.Nombre,
-				Cedula = p.Cedula,
-				FotoPath = p.FotoPath,
-				FechaNacimiento = p.FechaNacimiento,
-				Vive = p.Vive,
-				Lat = p.Coordenadas.lat,
-				Lon = p.Coordenadas.lon,
-				PadreCedula = p.Padre?.Cedula,
-				MadreCedula = p.Madre?.Cedula
-			}).ToList();
+			int n = Personas.size;
+			PersonaDto[] array = new PersonaDto[n];
 
-			string json = JsonSerializer.Serialize(listaDto, new JsonSerializerOptions { WriteIndented = true });
-			if (string.IsNullOrEmpty(path)) path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "arbol.json");
+			int i = 0;
+			Nodo<FamilyMember>? actual = Personas.Head;
+			while (actual != null)
+			{
+				var p = actual.Value;
+
+				array[i++] = new PersonaDto
+				{
+					Nombre = p.Nombre,
+					Cedula = p.Cedula,
+					FotoPath = p.FotoPath,
+					FechaNacimiento = p.FechaNacimiento,
+					Vive = p.Vive,
+					Lat = p.Latitud,
+					Lon = p.Longitud,
+					PadreCedula = p.Padre != null ? p.Padre.Cedula : null,
+					MadreCedula = p.Madre != null ? p.Madre.Cedula : null
+				};
+
+				actual = actual.Next;
+			}
+
+			string json = JsonSerializer.Serialize(array, new JsonSerializerOptions { WriteIndented = true });
+
+			if (string.IsNullOrEmpty(path))
+				path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "arbol.json");
+
 			File.WriteAllText(path, json);
 			return true;
 		}
@@ -188,48 +301,60 @@ public class ArbolGenealogico
 	{
 		try
 		{
-			if (string.IsNullOrEmpty(path)) path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "arbol.json");
+			if (string.IsNullOrEmpty(path))
+				path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "arbol.json");
+
 			if (!File.Exists(path)) return false;
 
 			string json = File.ReadAllText(path);
-			var listaDto = JsonSerializer.Deserialize<List<PersonaDto>>(json);
+			PersonaDto[] datos = JsonSerializer.Deserialize<PersonaDto[]>(json);
 
-			// Limpiar estado actual
-			Personas.Clear();
+			Personas = new ListaEnlazada<FamilyMember>();
+			Grafo = new GrafoFamilia();
 			Raiz = null;
 
-			// crear objetos Persona sin relaciones
-			foreach (var d in listaDto)
+			if (datos == null || datos.Length == 0)
+				return true;
+
+			// Crear miembros sin relaciones
+			foreach (var d in datos)
 			{
-				var persona = new Persona(d.Nombre, d.Cedula)
+				var persona = new FamilyMember(d.Cedula, d.Nombre, d.Lat, d.Lon, d.FotoPath)
 				{
-					FotoPath = d.FotoPath,
 					FechaNacimiento = d.FechaNacimiento,
-					Vive = d.Vive,
-					Coordenadas = (d.Lat, d.Lon)
+					Vive = d.Vive
 				};
-				Personas.Add(persona);
+
+				Personas.Añadir(persona);
+				Grafo.AgregarNodo(persona);
+				if (Raiz == null) Raiz = persona;
 			}
 
-			// asociar padres/madres por cédula
-			foreach (var d in listaDto)
+			// Asignar padres y madres
+			foreach (var d in datos)
 			{
-				var persona = Personas.FirstOrDefault(p => p.Cedula == d.Cedula);
+				var persona = BuscarPorCedula(d.Cedula);
 				if (persona == null) continue;
 
 				if (!string.IsNullOrEmpty(d.PadreCedula))
 				{
-					var padre = Personas.FirstOrDefault(x => x.Cedula == d.PadreCedula);
-					if (padre != null) { persona.Padre = padre; padre.Hijos.Add(persona); }
+					var padre = BuscarPorCedula(d.PadreCedula);
+					if (padre != null)
+					{
+						AsignarPadre(persona, padre);
+					}
 				}
+
 				if (!string.IsNullOrEmpty(d.MadreCedula))
 				{
-					var madre = Personas.FirstOrDefault(x => x.Cedula == d.MadreCedula);
-					if (madre != null) { persona.Madre = madre; madre.Hijos.Add(persona); }
+					var madre = BuscarPorCedula(d.MadreCedula);
+					if (madre != null)
+					{
+						AsignarMadre(persona, madre);
+					}
 				}
 			}
 
-			if (Personas.Count > 0) Raiz = Personas[0];
 			return true;
 		}
 		catch (Exception ex)

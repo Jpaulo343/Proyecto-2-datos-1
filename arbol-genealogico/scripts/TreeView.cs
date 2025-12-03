@@ -83,7 +83,7 @@ public partial class TreeView : Control
 		foreach (Node child in _graph.GetChildren())
 			child.QueueFree();
 
-		Persona raiz = Main.Instance.Arbol.Raiz;
+		FamilyMember raiz = Main.Instance.Arbol.Raiz;
 
 		if (raiz == null)
 		{
@@ -94,7 +94,7 @@ public partial class TreeView : Control
 		DibujarPersona(raiz, 0, 0);
 	}
 
-	private void DibujarPersona(Persona p, int nivel, int indice)
+	private void DibujarPersona(FamilyMember p, int nivel, int indice)
 	{
 		// ----- TARJETA (con foto + nombre + cédula) -----
 		var panel = new Button(); // Button para que sea clickeable
@@ -132,16 +132,16 @@ public partial class TreeView : Control
 		_graph.AddChild(panel);
 
 		// ----- DIBUJAR HIJOS -----
-		for (int i = 0; i < p.Hijos.Count; i++)
+		int i = 0;
+		foreach (var hijo in p.Hijos.Enumerar())
 		{
-			Persona hijo = p.Hijos[i];
-
 			Vector2 desde = panel.Position + new Vector2(90, 200);
 			Vector2 hasta = CalcularPosicionNodo(nivel + 1, i) + new Vector2(90, 0);
 
 			DibujarLinea(desde, hasta);
-
 			DibujarPersona(hijo, nivel + 1, i);
+
+			i++;
 		}
 	}
 
@@ -166,7 +166,7 @@ public partial class TreeView : Control
 	//                 ABRIR DETALLES DE PERSONA
 	// ============================================================
 
-	private void AbrirDetalles(Persona p)
+	private void AbrirDetalles(FamilyMember p)
 	{
 		var escena = ResourceLoader.Load<PackedScene>("res://scenes/DetallesPersona.tscn");
 		var instancia = escena.Instantiate<DetallesPersona>();

@@ -9,7 +9,7 @@ public partial class ListaPersonas : Control
 	{
 		_lista = GetNode<VBoxContainer>("MarginContainer/VBoxContainer/ScrollContainer/PersonasList");
 
-		foreach (var p in Main.Instance.Arbol.Personas)
+		foreach (var p in Main.Instance.Arbol.Personas.Enumerar())
 		{
 			var btn = new Button();
 			btn.Text = $"{p.Nombre} ({p.Cedula})";
@@ -25,7 +25,7 @@ public partial class ListaPersonas : Control
 			.Pressed += OnVolverPressed;
 	}
 
-	private void OnPersonaSeleccionada(Persona p)
+	private void OnPersonaSeleccionada(FamilyMember p)
 	{
 		var escena = (PackedScene)ResourceLoader.Load("res://scenes/DetallesPersona.tscn");
 		var instancia = escena.Instantiate<DetallesPersona>();
@@ -34,7 +34,7 @@ public partial class ListaPersonas : Control
 
 		GetTree().Root.AddChild(instancia);
 
-		QueueFree(); // cierra la pantalla actual
+		QueueFree(); // Cierra esta pantalla
 	}
 
 	private void OnVolverPressed()
