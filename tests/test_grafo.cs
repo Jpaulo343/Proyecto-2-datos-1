@@ -36,7 +36,7 @@ public class GrafoTests
 		Assert.That(miembros, Does.Contain(islandia));
 	}
 
-	[Test]
+    [Test]
 	public void Test_Aristas_Estan_Bien_Creadas()
 	{
 		var vecinos_jean = grafo.ObtenerVecinos(jean);
@@ -72,4 +72,73 @@ public class GrafoTests
 		double promedio = grafo.DistanciaPromedio();
 		Assert.That(promedio, Is.GreaterThan(0));
 	}
+
+
+    [Test]
+    public void Test_EliminarNodo_Elimina_Todas_Sus_Referencias()
+    {
+        grafo.EliminarNodo(juan);
+
+        var miembros = grafo.ObtenerTodosLosMiembros();
+        Assert.That(miembros, Does.Not.Contain(juan));
+
+        foreach (var m in miembros)
+        {
+            Assert.That(grafo.ObtenerVecinos(m), Does.Not.Contain(juan));
+        }
+    }
+
+
+    [Test]
+    public void Test_ObtenerMiembroPorNombre_Encuentra_Correcto()
+    {
+        var encontrado = grafo.ObtenerMiembroPorNombre("Pepito");
+        Assert.That(encontrado, Is.EqualTo(pepito));
+
+        var inexistente = grafo.ObtenerMiembroPorNombre("NoExiste");
+        Assert.That(inexistente, Is.Null);
+    }
+
+    [Test]
+    public void Test_QuitarRelacion_Funciona_Y_Bidireccional()
+    {
+        grafo.QuitarRelacion(jean, juan);
+
+        Assert.That(grafo.ObtenerVecinos(jean), Does.Not.Contain(juan));
+        Assert.That(grafo.ObtenerVecinos(juan), Does.Not.Contain(jean));
+    }
+
+
+
+    [Test]
+    public void Test_ParMasCercano_Funciona()
+    {
+        var (a, b, dist) = grafo.ParMasCercano();
+
+        Assert.That(a, Is.Not.Null);
+        Assert.That(b, Is.Not.Null);
+        Assert.That(dist, Is.GreaterThanOrEqualTo(0));
+        Assert.That(
+            (a == jean && b == juan) || (a == juan && b == jean),
+            Is.True
+        );
+    }
+
+
+    [Test]
+    public void Test_ObtenerDistanciasDesde_Regresa_Distancias_Correctas()
+    {
+        var distancias = grafo.ObtenerDistanciasDesde(jean);
+
+        Assert.That(distancias.Count, Is.EqualTo(3));
+
+        Assert.That(distancias.ContainsKey(juan));
+        Assert.That(distancias.ContainsKey(pepito));
+        Assert.That(distancias.ContainsKey(islandia));
+
+        Assert.That(distancias[juan], Is.GreaterThan(0));
+        Assert.That(distancias[pepito], Is.GreaterThan(0));
+        Assert.That(distancias[islandia], Is.GreaterThan(0));
+    }
+
 }
