@@ -1,0 +1,38 @@
+[gd_scene load_steps=2 format=3 uid="uid://dbodabnjpmvf2"]
+
+[ext_resource type="Script" uid="uid://bn1vkncaah8hu" path="res://scripts/Estadisticas.cs" id="1_jov51"]
+
+[node name="Estadisticas" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_jov51")
+
+[node name="Contenido" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="TituloLabel" type="Label" parent="Contenido"]
+layout_mode = 2
+text = "Estadísticas del árbol familiar"
+
+[node name="MasLejosLabel" type="Label" parent="Contenido"]
+layout_mode = 2
+text = "Par más lejano:"
+
+[node name="MasCercaLabel" type="Label" parent="Contenido"]
+layout_mode = 2
+text = "Par más cercano:"
+
+[node name="PromedioLabel" type="Label" parent="Contenido"]
+layout_mode = 2
+text = "Distancia promedio"
+
+[node name="VolverBtn" type="Button" parent="Contenido"]
+custom_minimum_size = Vector2(300, 50)
+layout_mode = 2
+text = "Volver"

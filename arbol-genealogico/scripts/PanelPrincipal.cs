@@ -11,12 +11,14 @@ public partial class PanelPrincipal : Control
 		var btnVerPersonas = GetNode<Button>("MarginContainer/VBoxContainer/VerPersonasBtn");
 		var btnArbol = GetNode<Button>("MarginContainer/VBoxContainer/VerArbolBtn");
 		var btnMapa = GetNode<Button>("MarginContainer/VBoxContainer/VerMapaBtn");
+		var btnEstadisticas = GetNode<Button>("MarginContainer/VBoxContainer/VerEstadisticasBtn");
 		var btnSalir = GetNode<Button>("MarginContainer/VBoxContainer/SalirBtn");
 
 		btnAgregar.Pressed += OnAgregarPersonaPressed;
 		btnVerPersonas.Pressed += OnVerPersonasPressed;
 		btnArbol.Pressed += OnVerArbolPressed;
 		btnMapa.Pressed += OnVerMapaPressed;
+		btnEstadisticas.Pressed += OnVerEstadisticasPressed;
 		btnSalir.Pressed += OnSalirPressed;
 	}
 
@@ -31,7 +33,6 @@ public partial class PanelPrincipal : Control
 		GetTree().ChangeSceneToFile("res://scenes/ListaPersonas.tscn");
 	}
 
-
 	private void OnVerArbolPressed()
 	{
 		GD.Print("Ir a vista del Árbol");
@@ -42,6 +43,12 @@ public partial class PanelPrincipal : Control
 	{
 		GD.Print("Ir al mapa");
 		GetTree().ChangeSceneToFile("res://scenes/mapa/mapa.tscn");
+	}
+
+	private void OnVerEstadisticasPressed()
+	{
+		GD.Print("Ir a estadísticas");
+		GetTree().ChangeSceneToFile("res://scenes/Estadisticas.tscn");
 	}
 
 	private void OnSalirPressed()

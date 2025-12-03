@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cfsxqsy7koyak"]
 
-[ext_resource type="Script" uid="uid://cerb8tqgpoypc" path="res://scripts/PanelPrincipal.cs" id="1_b3td5"]
+[ext_resource type="Script" uid="uid://owwhpug62uyt" path="res://scripts/PanelPrincipal.cs" id="1_b3td5"]
 
 [node name="PanelPrincipal" type="Control"]
 layout_mode = 3
@@ -47,6 +47,11 @@ text = "Ver Arbol Genealogico"
 custom_minimum_size = Vector2(300, 50)
 layout_mode = 2
 text = "Ver Mapa"
+
+[node name="VerEstadisticasBtn" type="Button" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(300, 50)
+layout_mode = 2
+text = "Ver estadísticas"
 
 [node name="SalirBtn" type="Button" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(300, 50)
