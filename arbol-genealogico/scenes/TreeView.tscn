@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cion08sieh272"]
 
-[ext_resource type="Script" uid="uid://bewt42o2swt2d" path="res://scripts/TreeView.cs" id="1_nh8di"]
+[ext_resource type="Script" uid="uid://clxell2c7qtob" path="res://scripts/TreeView.cs" id="1_nh8di"]
 
 [node name="TreeView" type="Control"]
 layout_mode = 3
@@ -11,19 +11,19 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_nh8di")
 
-[node name="ZoomArea" type="Control" parent="."]
-anchors_preset = 0
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
-mouse_filter = 1
 
-[node name="Graph" type="Control" parent="ZoomArea"]
-custom_minimum_size = Vector2(2000, 2000)
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="MarginContainer/ScrollContainer"]
+layout_mode = 2
 
 [node name="VolverBtn" type="Button" parent="."]
+custom_minimum_size = Vector2(200, 50)
 layout_mode = 0
 offset_right = 8.0
 offset_bottom = 8.0
