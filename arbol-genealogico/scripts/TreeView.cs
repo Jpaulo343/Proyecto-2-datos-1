@@ -1,6 +1,5 @@
 using Godot;
 using System;
-using System.Collections.Generic;
 
 public partial class TreeView : Control
 {
@@ -10,6 +9,7 @@ public partial class TreeView : Control
 	{
 		_container = GetNode<VBoxContainer>("MarginContainer/ScrollContainer/Content");
 		GetNode<Button>("VolverBtn").Pressed += OnVolverPressed;
+
 		ActualizarArbol();
 	}
 
@@ -20,67 +20,59 @@ public partial class TreeView : Control
 
 	public void ActualizarArbol()
 	{
+		// Limpiar contenido previo
 		foreach (Node child in _container.GetChildren())
 			child.QueueFree();
 
-		var raiz = Main.Instance.Arbol.Raiz;
-		if (raiz == null)
+		if (Main.Instance.Arbol.Raiz == null)
 		{
 			GD.Print("Árbol vacío");
 			return;
 		}
 
-		DibujarNodo(raiz, 0);
+		// Dibujar desde la raíz
+		DibujarPersona(Main.Instance.Arbol.Raiz, 0);
 	}
 
-	private void DibujarNodo(FamilyMember persona, int nivel)
+	private void DibujarPersona(FamilyMember persona, int nivel)
 	{
 		if (persona == null) return;
 
-		// Crear el panel del nodo
-		var panel = CrearPanelPersona(persona, nivel);
-
-		// Si queremos indentar según el nivel, creamos una fila (HBox)
-		// y añadimos un spacer (Control) con ancho = nivel * OFFSET
-		const int OFFSET_POR_NIVEL = 60;
+		// Crea fila horizontal: indentación + tarjeta
 		var fila = new HBoxContainer();
 
-		if (nivel > 0)
-		{
-			var spacer = new Control();
-			spacer.CustomMinimumSize = new Vector2(nivel * OFFSET_POR_NIVEL, 0);
-			// asegurar que el spacer no se colapse
-			spacer.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
-			fila.AddChild(spacer);
-		}
+		// Indentación según nivel (padres- hijos- nietos…)
+		var indent = new Control();
+		indent.CustomMinimumSize = new Vector2(nivel * 60, 0);
+		fila.AddChild(indent);
 
-		fila.AddChild(panel);
+		// Crear tarjeta visual
+		var card = CrearPanelPersona(persona);
+		fila.AddChild(card);
+
 		_container.AddChild(fila);
 
-		// Obtener vecinos/hijos desde tu grafo (ajusta el método si se llama distinto)
-		var hijos = Main.Instance.Arbol.Grafo.ObtenerVecinos(persona);
-
-		foreach (var h in hijos)
+		// Dibujar recursivamente los hijos
+		foreach (var hijo in persona.Hijos.Enumerar())
 		{
-			// evitar volver a subir hacia padres si el grafo devuelve vecinos
-			if (h != persona.Padre && h != persona.Madre)
-				DibujarNodo(h, nivel + 1);
+			DibujarPersona(hijo, nivel + 1);
 		}
 	}
 
-	private Control CrearPanelPersona(FamilyMember p, int nivel)
+	private Control CrearPanelPersona(FamilyMember p)
 	{
 		var panel = new PanelContainer();
-		panel.CustomMinimumSize = new Vector2(350, 180);
+		panel.CustomMinimumSize = new Vector2(320, 120);
 
-		// StyleBoxFlat compatible Godot 4: usar propiedades individuales
+		// Estilo elegante
 		var style = new StyleBoxFlat();
 		style.BgColor = new Color(0.20f, 0.21f, 0.25f);
-		style.BorderColor = new Color(0.95f, 0.95f, 0.95f);
+		style.BorderColor = new Color(1, 1, 1);
 		style.BorderWidthLeft = 2;
 		style.BorderWidthRight = 2;
 		style.BorderWidthTop = 2;
 		style.BorderWidthBottom = 2;
+
 		style.CornerRadiusTopLeft = 12;
 		style.CornerRadiusTopRight = 12;
 		style.CornerRadiusBottomLeft = 12;
@@ -89,58 +81,51 @@ public partial class TreeView : Control
 		panel.AddThemeStyleboxOverride("panel", style);
 
 		var hbox = new HBoxContainer();
-		hbox.AddThemeConstantOverride("separation", 16);
-
+		hbox.AddThemeConstantOverride("separation", 12);
 		panel.AddChild(hbox);
 
+		// FOTO
 		var foto = new TextureRect();
-		foto.CustomMinimumSize = new Vector2(120, 120);
+		foto.CustomMinimumSize = new Vector2(70, 70);
 		foto.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
-		foto.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		foto.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+		foto.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
 
 		if (!string.IsNullOrEmpty(p.FotoPath))
 		{
 			try
 			{
 				var img = Image.LoadFromFile(p.FotoPath);
-				var tex = ImageTexture.CreateFromImage(img);
-				foto.Texture = tex;
+				foto.Texture = ImageTexture.CreateFromImage(img);
 			}
 			catch
 			{
-				GD.PrintErr("Error cargando imagen: " + p.FotoPath);
+				GD.PrintErr("Error cargando foto: " + p.FotoPath);
 			}
 		}
 
 		hbox.AddChild(foto);
 
+		// INFO
 		var vbox = new VBoxContainer();
-		vbox.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-
 		hbox.AddChild(vbox);
 
 		var nombre = new Label();
-		nombre.Text = p.Nombre ?? "Sin nombre";
+		nombre.Text = p.Nombre;
 		nombre.HorizontalAlignment = HorizontalAlignment.Center;
-		nombre.VerticalAlignment = VerticalAlignment.Center;
+		nombre.AddThemeFontSizeOverride("font_size", 18);
 		nombre.AutowrapMode = TextServer.AutowrapMode.Word;
-		nombre.AddThemeFontSizeOverride("font_size", 20);
-
 		vbox.AddChild(nombre);
 
 		var cedula = new Label();
-		cedula.Text = "Cédula: " + (p.Cedula ?? "-");
+		cedula.Text = "Cédula: " + p.Cedula;
 		cedula.HorizontalAlignment = HorizontalAlignment.Center;
-		cedula.VerticalAlignment = VerticalAlignment.Center;
-		cedula.AutowrapMode = TextServer.AutowrapMode.Word;
-
 		vbox.AddChild(cedula);
 
-		var nacido = new Label();
-		nacido.Text = "Fecha Nac: " + (p.FechaNacimiento == DateTime.MinValue ? "No registrada" : p.FechaNacimiento.ToShortDateString());
-		nacido.HorizontalAlignment = HorizontalAlignment.Center;
-		vbox.AddChild(nacido);
+		var fecha = new Label();
+		fecha.Text = "Nacimiento: " +
+			(p.FechaNacimiento == DateTime.MinValue ? "N/A" : p.FechaNacimiento.ToShortDateString());
+		fecha.HorizontalAlignment = HorizontalAlignment.Center;
+		vbox.AddChild(fecha);
 
 		var vive = new Label();
 		vive.Text = "Vive: " + (p.Vive ? "Sí" : "No");

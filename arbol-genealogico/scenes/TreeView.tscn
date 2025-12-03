@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cion08sieh272"]
 
-[ext_resource type="Script" uid="uid://bewt42o2swt2d" path="res://scripts/TreeView.cs" id="1_nh8di"]
+[ext_resource type="Script" uid="uid://clxell2c7qtob" path="res://scripts/TreeView.cs" id="1_nh8di"]
 
 [node name="TreeView" type="Control"]
 layout_mode = 3
