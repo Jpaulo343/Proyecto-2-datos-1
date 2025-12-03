@@ -4,21 +4,22 @@ using System.Collections.Generic;
 
 public partial class MainMapa : Node2D
 {
-	
-
 		
 	private GrafoFamilia grafo;
-
+	private Marcador marcadorSeleccionado = null;
+	private LineDrawer lineDrawer;
 	[Export] private Sprite2D MapaMundial;
 
 	public override void _Ready()
 	{
-		// 1. Crear el grafo y llenarlo con miembros
+		// cargar el nodo que dibuja las distancias entre personas
+		 lineDrawer = GetNode<LineDrawer>("LineDrawer");
+		// Crear el grafo y llenarlo con miembros
 		grafo = CrearGrafoDePrueba();
 		var volverBtn = GetNode<Button>("Camera2d/Button_volver");
 		volverBtn.Pressed += OnVolverPressed;
 
-		// 2. Recorrer nodos del grafo
+		// Recorrer nodos del grafo
 		foreach (FamilyMember miembro in grafo.ObtenerTodosLosMiembros())
 		{
 			GD.Print("Creando marcador para: " + miembro.Nombre);
@@ -34,6 +35,8 @@ public partial class MainMapa : Node2D
 
 		AddChild(marcador);
 		Texture2D texturaFinal = null;
+		
+		marcador.MarkerClicked += OnMarcadorClicked;
 
 			// Si el miembro tiene foto
 			if (!string.IsNullOrEmpty(miembro.FotoPath))
@@ -62,7 +65,7 @@ public partial class MainMapa : Node2D
 	{
 		var g = new GrafoFamilia();
 
-		var jean = new FamilyMember("1", "Jean", 9.9, -84.0,"C:/Users/jpaul/OneDrive/Im\u00E1genes/math cat.jpg");
+		var jean = new FamilyMember("1", "Jean Paulo Poveda Chaves",9.982863, -84.060274,"C:/Users/jpaul/OneDrive/Im\u00E1genes/math cat.jpg");
 		var juan = new FamilyMember("2", "Juan", 0, 0);
 		
 		var pepito = new FamilyMember("3", "Pepito", 60.7, 97.4);
@@ -100,5 +103,43 @@ public partial class MainMapa : Node2D
 	private void OnVolverPressed()
 	{
 		GetTree().ChangeSceneToFile("res://scenes/PanelPrincipal.tscn");
+	}
+	private void OnMarcadorClicked(Marcador m)
+	{
+		// borra las lineas si clickea otra vez
+		if (marcadorSeleccionado == m)
+		{
+			foreach (Node child in GetChildren())
+			{
+				if (child is Marcador other && other != m)
+				{
+					other.foto.Visible = true;
+				}
+			}
+			
+			marcadorSeleccionado.foto.Visible = true;
+			marcadorSeleccionado = null;
+			lineDrawer.ClearAll();
+			return;
+		}
+
+		marcadorSeleccionado = m;		
+		marcadorSeleccionado.foto.Visible = false;
+		FamilyMember Objeto_Seleccionado = grafo.ObtenerMiembroPorNombre(m.ObtenerNombre());
+		lineDrawer.ClearAll();
+
+		// Obtener todos los marcadores del MainMapa
+		foreach (Node child in GetChildren())
+		{
+			if (child is Marcador other && other != m)
+			{
+				Vector2 p1 = m.GlobalPosition;
+				Vector2 p2 = other.GlobalPosition;
+				FamilyMember Otro_Objeto_Seleccionado = grafo.ObtenerMiembroPorNombre(other.ObtenerNombre());
+				other.foto.Visible = false;
+				string texto = grafo.CalcularDistancia(Objeto_Seleccionado,Otro_Objeto_Seleccionado).ToString("0.#")+" metros";
+				lineDrawer.DrawConnection(p1, p2, texto);
+			}
+		}
 	}
 }
