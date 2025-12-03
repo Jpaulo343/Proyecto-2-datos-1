@@ -86,7 +86,14 @@ public partial class AgregarPersona : Control
 
 		if (string.IsNullOrEmpty(nombre) || string.IsNullOrEmpty(cedula))
 		{
-			GD.PrintErr("Nombre y cédula son obligatorios.");
+			MostrarError("Nombre y cédula son obligatorios.");
+			return;
+		}
+		string latitud= _latInput.Text.Trim();
+		string longitud= _lonInput.Text.Trim();
+		if (string.IsNullOrEmpty(latitud) || string.IsNullOrEmpty(longitud))
+		{
+			MostrarError("las coordenadas son obligatorias.");
 			return;
 		}
 
@@ -136,7 +143,8 @@ public partial class AgregarPersona : Control
 
 		Main.Instance.GuardarArbolEnDisco();
 
-		GD.Print($"Persona agregada: {nuevaPersona.Nombre}");
+		
+			MostrarError("Persona agregada: {nuevaPersona.Nombre}");
 
 		GetTree().ChangeSceneToFile("res://scenes/PanelPrincipal.tscn");
 	}
@@ -157,4 +165,13 @@ public partial class AgregarPersona : Control
 	{
 		GetTree().ChangeSceneToFile("res://scenes/PanelPrincipal.tscn");
 	}
+	
+	private void MostrarError(string mensaje)
+	{
+		var dialog = new AcceptDialog();
+		dialog.DialogText = mensaje;
+		AddChild(dialog);
+		dialog.PopupCentered();
+	}
+
 }

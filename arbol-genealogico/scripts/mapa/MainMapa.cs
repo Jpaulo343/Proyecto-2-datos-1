@@ -15,7 +15,7 @@ public partial class MainMapa : Node2D
 		// cargar el nodo que dibuja las distancias entre personas
 		 lineDrawer = GetNode<LineDrawer>("LineDrawer");
 		// Crear el grafo y llenarlo con miembros
-		grafo = CrearGrafoDePrueba();
+		grafo  = ConstruirGrafoDesdePersonas();
 		var volverBtn = GetNode<Button>("Camera2d/Button_volver");
 		volverBtn.Pressed += OnVolverPressed;
 
@@ -142,4 +142,48 @@ public partial class MainMapa : Node2D
 			}
 		}
 	}
+	private GrafoFamilia ConstruirGrafoDesdePersonas()
+	{
+		var grafo = new GrafoFamilia();
+
+		foreach (var persona in Main.Instance.Arbol.Personas.Enumerar())
+		{
+			if (persona.Latitud == 0 && persona.Longitud == 0)
+				continue;
+
+			var fm = new FamilyMember(
+				persona.Cedula,
+				persona.Nombre,
+				persona.Latitud,
+				persona.Longitud,
+				persona.FotoPath
+			);
+
+			grafo.AgregarNodo(fm);
+		}
+
+		IEnumerable<FamilyMember> miembrosEnum = grafo.ObtenerTodosLosMiembros();
+
+		int total = 0;
+		foreach (var _ in miembrosEnum)
+			total++;
+
+		FamilyMember[] miembros = new FamilyMember[total];
+		int k = 0;
+		foreach (var m in grafo.ObtenerTodosLosMiembros())
+		{
+			miembros[k++] = m;
+		}
+
+		for (int i = 0; i < total; i++)
+		{
+			for (int j = i + 1; j < total; j++)
+			{
+				grafo.AgregarArista(miembros[i], miembros[j]);
+			}
+		}
+
+		return grafo;
+	}
+	
 }
