@@ -8,7 +8,7 @@ public partial class TreeView : Control
 
 	public override void _Ready()
 	{
-		_container = GetNode<VBoxContainer>("ScrollContainer/Content");
+		_container = GetNode<VBoxContainer>("MarginContainer/ScrollContainer/Content");
 		GetNode<Button>("VolverBtn").Pressed += OnVolverPressed;
 		ActualizarArbol();
 	}
