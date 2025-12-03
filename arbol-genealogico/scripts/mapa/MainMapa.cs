@@ -15,7 +15,7 @@ public partial class MainMapa : Node2D
 		// cargar el nodo que dibuja las distancias entre personas
 		 lineDrawer = GetNode<LineDrawer>("LineDrawer");
 		// Crear el grafo y llenarlo con miembros
-		grafo = CrearGrafoDePrueba();
+		grafo  = ConstruirGrafoDesdePersonas();
 		var volverBtn = GetNode<Button>("Camera2d/Button_volver");
 		volverBtn.Pressed += OnVolverPressed;
 
@@ -65,7 +65,7 @@ public partial class MainMapa : Node2D
 	{
 		var g = new GrafoFamilia();
 
-		var jean = new FamilyMember("1", "Jean Paulo Poveda Chaves", 9.9, -84.0,"C:/Users/jpaul/OneDrive/Im\u00E1genes/math cat.jpg");
+		var jean = new FamilyMember("1", "Jean Paulo Poveda Chaves",9.982863, -84.060274,"C:/Users/jpaul/OneDrive/Im\u00E1genes/math cat.jpg");
 		var juan = new FamilyMember("2", "Juan", 0, 0);
 		
 		var pepito = new FamilyMember("3", "Pepito", 60.7, 97.4);
@@ -109,12 +109,22 @@ public partial class MainMapa : Node2D
 		// borra las lineas si clickea otra vez
 		if (marcadorSeleccionado == m)
 		{
+			foreach (Node child in GetChildren())
+			{
+				if (child is Marcador other && other != m)
+				{
+					other.foto.Visible = true;
+				}
+			}
+			
+			marcadorSeleccionado.foto.Visible = true;
 			marcadorSeleccionado = null;
 			lineDrawer.ClearAll();
 			return;
 		}
 
-		marcadorSeleccionado = m;
+		marcadorSeleccionado = m;		
+		marcadorSeleccionado.foto.Visible = false;
 		FamilyMember Objeto_Seleccionado = grafo.ObtenerMiembroPorNombre(m.ObtenerNombre());
 		lineDrawer.ClearAll();
 
@@ -126,10 +136,54 @@ public partial class MainMapa : Node2D
 				Vector2 p1 = m.GlobalPosition;
 				Vector2 p2 = other.GlobalPosition;
 				FamilyMember Otro_Objeto_Seleccionado = grafo.ObtenerMiembroPorNombre(other.ObtenerNombre());
-
+				other.foto.Visible = false;
 				string texto = grafo.CalcularDistancia(Objeto_Seleccionado,Otro_Objeto_Seleccionado).ToString("0.#")+" metros";
 				lineDrawer.DrawConnection(p1, p2, texto);
 			}
 		}
 	}
+	private GrafoFamilia ConstruirGrafoDesdePersonas()
+	{
+		var grafo = new GrafoFamilia();
+
+		foreach (var persona in Main.Instance.Arbol.Personas.Enumerar())
+		{
+			if (persona.Latitud == 0 && persona.Longitud == 0)
+				continue;
+
+			var fm = new FamilyMember(
+				persona.Cedula,
+				persona.Nombre,
+				persona.Latitud,
+				persona.Longitud,
+				persona.FotoPath
+			);
+
+			grafo.AgregarNodo(fm);
+		}
+
+		IEnumerable<FamilyMember> miembrosEnum = grafo.ObtenerTodosLosMiembros();
+
+		int total = 0;
+		foreach (var _ in miembrosEnum)
+			total++;
+
+		FamilyMember[] miembros = new FamilyMember[total];
+		int k = 0;
+		foreach (var m in grafo.ObtenerTodosLosMiembros())
+		{
+			miembros[k++] = m;
+		}
+
+		for (int i = 0; i < total; i++)
+		{
+			for (int j = i + 1; j < total; j++)
+			{
+				grafo.AgregarArista(miembros[i], miembros[j]);
+			}
+		}
+
+		return grafo;
+	}
+	
 }
