@@ -61,23 +61,6 @@ public partial class MainMapa : Node2D
 		);
 	}
 
-	private GrafoFamilia CrearGrafoDePrueba()
-	{
-		var g = new GrafoFamilia();
-
-		var jean = new FamilyMember("1", "Jean Paulo Poveda Chaves",9.982863, -84.060274,"C:/Users/jpaul/OneDrive/Im\u00E1genes/math cat.jpg");
-		var juan = new FamilyMember("2", "Juan", 0, 0);
-		
-		var pepito = new FamilyMember("3", "Pepito", 60.7, 97.4);
-		var islandia = new FamilyMember("4", "Islandia", 64.88, -18.19);
-
-		// Añadir nodos y aristas
-		g.AgregarArista(jean, juan);
-		g.AgregarArista(juan, pepito);
-		g.AgregarArista(pepito, islandia);
-
-		return g;
-	}
 
 	private Vector2 ConvertirCordenadas(float lat, float lon)
 	{

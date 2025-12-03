@@ -15,9 +15,10 @@ run/main_scene="uid://b8j10cwxx2vnx"
 config/features=PackedStringArray("4.5", "C#", "Forward Plus")
 <<<<<<<Updatedupstreamrun/main_scene="uid://jgksdpqt8lt"
 
-[autoload]
+[display]
 
-GlobalData="*res://scripts/GlobalData.cs"
+window/size/viewport_width=1540
+window/size/viewport_height=915
 
 [dotnet]
 

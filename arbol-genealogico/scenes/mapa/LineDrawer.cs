@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 public partial class LineDrawer : Node2D
 {
-	public List<Vector2> LinePoints = new List<Vector2>();
-	public List<(Vector2 pos, string text)> Labels = new List<(Vector2, string)>();
+	private ListaEnlazada<Vector2> LinePoints = new ListaEnlazada<Vector2>();
+	private ListaEnlazada<(Vector2 pos, string text)> Labels = new ListaEnlazada<(Vector2 pos, string text)>();
 
 	public void ClearAll()
 	{
-		LinePoints.Clear();
-		Labels.Clear();
+		LinePoints = new ListaEnlazada<Vector2>();
+		Labels = new ListaEnlazada<(Vector2 pos, string text)>();
 		QueueRedraw();  
 	}
 
@@ -18,27 +18,43 @@ public partial class LineDrawer : Node2D
 		from = ToLocal(from);
 		to = ToLocal(to);
 
-		LinePoints.Add(from);
-		LinePoints.Add(to);		
+		// Guardar los puntos
+		LinePoints.Añadir(from);
+		LinePoints.Añadir(to);
+
+		// Punto medio
 		Vector2 mid = (from + to) * 0.5f;
-		Labels.Add((mid, text));
-		QueueRedraw(); 
+
+		// Guardamos la etiqueta
+		Labels.Añadir((mid, text));
+
+		QueueRedraw();
 	}
+	
 
 
 	public override void _Draw()
 	{
 		// Dibujar líneas
-		for (int i = 0; i < LinePoints.Count; i += 2)
+		Vector2? puntoPrevio = null;
+		foreach (var punto in LinePoints.Enumerar())
 		{
-			DrawLine(LinePoints[i], LinePoints[i+1], Colors.Red, 10);	
+			if (puntoPrevio == null)
+			{
+				puntoPrevio = punto;
+			}
+			else
+			{
+				DrawLine(puntoPrevio.Value, punto, Colors.Red, 10);
+				puntoPrevio = null;
+			}
 		}
 
 		// Dibujar textos
-		foreach (var label in Labels)
+		foreach (var label in Labels.Enumerar())
 		{
 			Vector2 pos = label.pos + new Vector2(10, 0);
 			DrawString(ThemeDB.FallbackFont, pos, label.text, HorizontalAlignment.Left, -1, 75, Colors.Black);
 		}
-	}
+	}	
 }
