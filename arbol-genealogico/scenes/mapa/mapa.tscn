@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://jgksdpqt8lt"]
+[gd_scene load_steps=5 format=3 uid="uid://jgksdpqt8lt"]
 
 [ext_resource type="Script" uid="uid://b5qm6eu4gojsw" path="res://scripts/mapa/MainMapa.cs" id="1_v373u"]
 [ext_resource type="Texture2D" uid="uid://dytavbjvjfdx3" path="res://assets/world map.svg" id="2_p106v"]
+[ext_resource type="Script" uid="uid://dnp3v5lguftct" path="res://scenes/mapa/LineDrawer.cs" id="3_24wre"]
 [ext_resource type="Script" uid="uid://otrvx6jvimug" path="res://scripts/mapa/Camera2d.cs" id="3_p106v"]
 
 [node name="MainMapa" type="Node2D" node_paths=PackedStringArray("MapaMundial")]
@@ -13,14 +14,19 @@ position = Vector2(-2, -3)
 scale = Vector2(0.892, 0.9754959)
 texture = ExtResource("2_p106v")
 
+[node name="LineDrawer" type="Node2D" parent="."]
+position = Vector2(-2, -3)
+scale = Vector2(0.892, 0.9754959)
+script = ExtResource("3_24wre")
+
 [node name="Camera2d" type="Camera2D" parent="."]
 zoom = Vector2(0.15, 0.15)
 script = ExtResource("3_p106v")
 
 [node name="Button_volver" type="Button" parent="Camera2d"]
-offset_left = -220.0
-offset_top = 1315.0
-offset_right = 229.0
+offset_left = -254.0
+offset_top = 1254.0
+offset_right = 256.0
 offset_bottom = 1431.0
 theme_override_font_sizes/font_size = 69
 text = "Volver"

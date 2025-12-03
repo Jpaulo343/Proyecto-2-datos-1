@@ -20,18 +20,82 @@ public class FamilyMember
 	}
 }
 
+public class Nodo<T>
+{
+	public T Value { get; private set; }
+	public Nodo<T>? Next { get; set; }
+
+	public Nodo(T dato)
+	{
+		Value = dato;
+	}
+}
+
+public class ListaEnlazada<T>
+{
+	public Nodo<T>? Head { get; protected set; }
+	public Nodo<T>? Tail { get; protected set; }
+	public int size { get; protected set; }
+
+
+	public void Añadir(T dato)
+	{
+		Nodo<T> nodo = new Nodo<T>(dato);
+		size++;
+		if (Head == null)
+		{
+			Tail = Head = nodo;
+			return;
+		}
+		else
+		{
+			Nodo<T> Temp = Head;
+			Head = nodo;
+			Head.Next = Temp;
+			return;
+		}
+	}
+
+
+	public bool Buscar(T dato)
+	{
+
+		Nodo<T>? actual = Head;
+		while (actual != null)
+		{
+			if (actual.Value!.Equals(dato))
+			{
+				return true;
+			}
+
+			actual = actual.Next!;
+		}
+		return false;
+	}
+
+
+	public IEnumerable<T> Enumerar()
+	{
+		Nodo<T>? actual = Head!;
+		while (actual != null)
+		{
+			yield return actual.Value;
+			actual = actual.Next!;
+		}
+	}
+}
+
 
 public class GrafoFamilia
 {
-
-	private Dictionary<FamilyMember, List<FamilyMember>> adyacencia =
-		new Dictionary<FamilyMember, List<FamilyMember>>();
+	private Dictionary<FamilyMember, ListaEnlazada<FamilyMember>> adyacencia =
+		new Dictionary<FamilyMember, ListaEnlazada<FamilyMember>>();
 
 	public void AgregarNodo(FamilyMember miembro)
 	{
 		if (!adyacencia.ContainsKey(miembro))
 		{
-			adyacencia[miembro] = new List<FamilyMember>();
+			adyacencia[miembro] = new ListaEnlazada<FamilyMember>();
 		}
 	}
 
@@ -40,19 +104,19 @@ public class GrafoFamilia
 		AgregarNodo(a);
 		AgregarNodo(b);
 
-		if (!adyacencia[a].Contains(b))
-			adyacencia[a].Add(b);
+		if (!adyacencia[a].Buscar(b))
+			adyacencia[a].Añadir(b);
 
-		if (bidireccional && !adyacencia[b].Contains(a))
-			adyacencia[b].Add(a);
+		if (bidireccional && !adyacencia[b].Buscar(a))
+			adyacencia[b].Añadir(a);
 	}
 
 	public IEnumerable<FamilyMember> ObtenerVecinos(FamilyMember miembro)
 	{
 		if (adyacencia.ContainsKey(miembro))
-			return adyacencia[miembro];
+			return adyacencia[miembro].Enumerar();
 
-		return new List<FamilyMember>();
+		return new ListaEnlazada<FamilyMember>().Enumerar();
 	}
 
 	public IEnumerable<FamilyMember> ObtenerTodosLosMiembros()
@@ -60,9 +124,22 @@ public class GrafoFamilia
 		return adyacencia.Keys;
 	}
 
+	public FamilyMember ObtenerMiembroPorNombre(string nombre)
+	{
+		foreach (var miembro in adyacencia.Keys)
+		{
+			if (miembro.Nombre == nombre)
+			{
+				return miembro;
+			}
+		}
+
+		return null; 
+	}
+
 	private double Haversine(double lat1, double lon1, double lat2, double lon2)
 	{
-		const double R = 6371.0; // Radio de la Tierra en km
+		const double R = 6371.0; 
 
 		double dLat = GradosARadianes(lat2 - lat1);
 		double dLon = GradosARadianes(lon2 - lon1);
@@ -76,7 +153,7 @@ public class GrafoFamilia
 
 		double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
 
-		return R * c; // km
+		return R * c; 
 	}
 
 	private double GradosARadianes(double grados)
@@ -110,18 +187,18 @@ public class GrafoFamilia
 		double maxDist = -1;
 		FamilyMember m1 = null, m2 = null;
 
-		var miembros = new List<FamilyMember>(ObtenerTodosLosMiembros());
-
-		for (int i = 0; i < miembros.Count; i++)
+		foreach (var miembroA in ObtenerTodosLosMiembros())
 		{
-			for (int j = i + 1; j < miembros.Count; j++)
+			foreach (var miembroB in ObtenerTodosLosMiembros())
 			{
-				double d = CalcularDistancia(miembros[i], miembros[j]);
+				if (miembroA == miembroB) continue;
+
+				double d = CalcularDistancia(miembroA, miembroB);
 				if (d > maxDist)
 				{
 					maxDist = d;
-					m1 = miembros[i];
-					m2 = miembros[j];
+					m1 = miembroA;
+					m2 = miembroB;
 				}
 			}
 		}
@@ -134,18 +211,18 @@ public class GrafoFamilia
 		double minDist = double.MaxValue;
 		FamilyMember m1 = null, m2 = null;
 
-		var miembros = new List<FamilyMember>(ObtenerTodosLosMiembros());
-
-		for (int i = 0; i < miembros.Count; i++)
+		foreach (var miembroA in ObtenerTodosLosMiembros())
 		{
-			for (int j = i + 1; j < miembros.Count; j++)
+			foreach (var miembroB in ObtenerTodosLosMiembros())
 			{
-				double d = CalcularDistancia(miembros[i], miembros[j]);
+				if (miembroA == miembroB) continue;
+
+				double d = CalcularDistancia(miembroA, miembroB);
 				if (d < minDist)
 				{
 					minDist = d;
-					m1 = miembros[i];
-					m2 = miembros[j];
+					m1 = miembroA;
+					m2 = miembroB;
 				}
 			}
 		}
@@ -158,13 +235,13 @@ public class GrafoFamilia
 		double suma = 0;
 		int conteo = 0;
 
-		var miembros = new List<FamilyMember>(ObtenerTodosLosMiembros());
-
-		for (int i = 0; i < miembros.Count; i++)
+		foreach (var miembroA in ObtenerTodosLosMiembros())
 		{
-			for (int j = i + 1; j < miembros.Count; j++)
+			foreach (var miembroB in ObtenerTodosLosMiembros())
 			{
-				suma += CalcularDistancia(miembros[i], miembros[j]);
+				if (miembroA == miembroB) continue;
+
+				suma += CalcularDistancia(miembroA, miembroB);
 				conteo++;
 			}
 		}
