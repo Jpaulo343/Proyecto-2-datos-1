@@ -1,6 +1,51 @@
 [gd_scene load_steps=2 format=3 uid="uid://2gvvx47bo220"]
 
-[ext_resource type="Script" uid="uid://bigdgo5g8e461" path="res://scripts/ListaPersonas.cs" id="1_0wgh0"]
+[sub_resource type="CSharpScript" id="CSharpScript_s7dmf"]
+script/source = "using Godot;
+using System;
+
+public partial class ListaPersonas : Control
+{
+	private VBoxContainer _lista;
+
+	public override void _Ready()
+	{
+		_lista = GetNode<VBoxContainer>(\"MarginContainer/VBoxContainer/ScrollContainer/PersonasList\");
+
+		foreach (var p in Main.Instance.Arbol.Personas.Enumerar())
+		{
+			var btn = new Button();
+			btn.Text = $\"{p.Nombre} ({p.Cedula})\";
+			btn.CustomMinimumSize = new Vector2(0, 45);
+			btn.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+
+			btn.Pressed += () => OnPersonaSeleccionada(p);
+
+			_lista.AddChild(btn);
+		}
+
+		GetNode<Button>(\"MarginContainer/VBoxContainer/VolverBtn\")
+			.Pressed += OnVolverPressed;
+	}
+
+	private void OnPersonaSeleccionada(FamilyMember p)
+	{
+		var escena = (PackedScene)ResourceLoader.Load(\"res://scenes/DetallesPersona.tscn\");
+		var instancia = escena.Instantiate<DetallesPersona>();
+
+		instancia.SetPersona(p);
+
+		GetTree().Root.AddChild(instancia);
+
+		QueueFree(); // Cierra esta pantalla
+	}
+
+	private void OnVolverPressed()
+	{
+		GetTree().ChangeSceneToFile(\"res://scenes/PanelPrincipal.tscn\");
+	}
+}
+"
 
 [node name="ListaPersonas" type="Control"]
 layout_mode = 3
@@ -9,7 +54,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_0wgh0")
+script = SubResource("CSharpScript_s7dmf")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 0

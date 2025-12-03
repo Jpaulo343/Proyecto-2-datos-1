@@ -1,179 +1,152 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 public partial class TreeView : Control
 {
-	private Control _graph;
-	private Vector2 _offset = new Vector2(200, 200); 
-	private float _verticalSpacing = 200f;
-	private float _horizontalSpacing = 260f;
-
-	// ---- DRAG & ZOOM ----
-	private bool _dragging = false;
-	private Vector2 _dragStartPos;
-	private float _zoom = 1f;
-	private const float MinZoom = 0.5f;
-	private const float MaxZoom = 2.5f;
+	private VBoxContainer _container;
 
 	public override void _Ready()
 	{
-		_graph = GetNode<Control>("ZoomArea/Graph");
-
-		GetNode<Button>("VolverBtn").Pressed += OnVolver;
-
-		// Permite que el nodo reciba eventos del mouse
-		SetProcessInput(true);
-
-		DibujarArbol();
+		_container = GetNode<VBoxContainer>("ScrollContainer/Content");
+		GetNode<Button>("VolverBtn").Pressed += OnVolverPressed;
+		ActualizarArbol();
 	}
 
-	private void OnVolver()
+	private void OnVolverPressed()
 	{
 		GetTree().ChangeSceneToFile("res://scenes/PanelPrincipal.tscn");
 	}
 
-	// ============================================================
-	//                       DRAG & ZOOM
-	// ============================================================
-
-	public override void _Input(InputEvent e)
+	public void ActualizarArbol()
 	{
-		// ---- ZOOM ----
-		if (e is InputEventMouseButton mb)
-		{
-			if (mb.ButtonIndex == MouseButton.WheelUp)
-			{
-				_zoom = Mathf.Clamp(_zoom + 0.1f, MinZoom, MaxZoom);
-				_graph.Scale = new Vector2(_zoom, _zoom);
-			}
-			else if (mb.ButtonIndex == MouseButton.WheelDown)
-			{
-				_zoom = Mathf.Clamp(_zoom - 0.1f, MinZoom, MaxZoom);
-				_graph.Scale = new Vector2(_zoom, _zoom);
-			}
-
-			// ---- DRAG START ----
-			if (mb.ButtonIndex == MouseButton.Left && mb.Pressed)
-			{
-				_dragging = true;
-				_dragStartPos = GetViewport().GetMousePosition();
-			}
-
-			if (mb.ButtonIndex == MouseButton.Left && !mb.Pressed)
-			{
-				_dragging = false;
-			}
-		}
-
-		// ---- DRAG MOVE ----
-		if (e is InputEventMouseMotion motion && _dragging)
-		{
-			Vector2 delta = motion.Relative;
-			_graph.Position += delta;
-		}
-	}
-
-	// ============================================================
-	//                DIBUJAR EL ÁRBOL COMPLETO
-	// ============================================================
-
-	private void DibujarArbol()
-	{
-		// LIMPIAR NODOS ANTERIORES
-		foreach (Node child in _graph.GetChildren())
+		foreach (Node child in _container.GetChildren())
 			child.QueueFree();
 
-		FamilyMember raiz = Main.Instance.Arbol.Raiz;
-
+		var raiz = Main.Instance.Arbol.Raiz;
 		if (raiz == null)
 		{
-			GD.PrintErr("Árbol vacío.");
+			GD.Print("Árbol vacío");
 			return;
 		}
 
-		DibujarPersona(raiz, 0, 0);
+		DibujarNodo(raiz, 0);
 	}
 
-	private void DibujarPersona(FamilyMember p, int nivel, int indice)
+	private void DibujarNodo(FamilyMember persona, int nivel)
 	{
-		// ----- TARJETA (con foto + nombre + cédula) -----
-		var panel = new Button(); // Button para que sea clickeable
-		panel.CustomMinimumSize = new Vector2(180, 200);
-		panel.Position = CalcularPosicionNodo(nivel, indice);
-		panel.AddThemeColorOverride("panel", new Color(0.85f, 0.85f, 0.90f, 1f));
+		if (persona == null) return;
 
-		panel.Pressed += () => AbrirDetalles(p);
+		// Crear el panel del nodo
+		var panel = CrearPanelPersona(persona, nivel);
 
-		// ---- FOTO ----
-		TextureRect foto = new TextureRect();
-		foto.CustomMinimumSize = new Vector2(140, 140);
+		// Si queremos indentar según el nivel, creamos una fila (HBox)
+		// y añadimos un spacer (Control) con ancho = nivel * OFFSET
+		const int OFFSET_POR_NIVEL = 60;
+		var fila = new HBoxContainer();
+
+		if (nivel > 0)
+		{
+			var spacer = new Control();
+			spacer.CustomMinimumSize = new Vector2(nivel * OFFSET_POR_NIVEL, 0);
+			// asegurar que el spacer no se colapse
+			spacer.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
+			fila.AddChild(spacer);
+		}
+
+		fila.AddChild(panel);
+		_container.AddChild(fila);
+
+		// Obtener vecinos/hijos desde tu grafo (ajusta el método si se llama distinto)
+		var hijos = Main.Instance.Arbol.Grafo.ObtenerVecinos(persona);
+
+		foreach (var h in hijos)
+		{
+			// evitar volver a subir hacia padres si el grafo devuelve vecinos
+			if (h != persona.Padre && h != persona.Madre)
+				DibujarNodo(h, nivel + 1);
+		}
+	}
+
+	private Control CrearPanelPersona(FamilyMember p, int nivel)
+	{
+		var panel = new PanelContainer();
+		panel.CustomMinimumSize = new Vector2(350, 180);
+
+		// StyleBoxFlat compatible Godot 4: usar propiedades individuales
+		var style = new StyleBoxFlat();
+		style.BgColor = new Color(0.20f, 0.21f, 0.25f);
+		style.BorderColor = new Color(0.95f, 0.95f, 0.95f);
+		style.BorderWidthLeft = 2;
+		style.BorderWidthRight = 2;
+		style.BorderWidthTop = 2;
+		style.BorderWidthBottom = 2;
+		style.CornerRadiusTopLeft = 12;
+		style.CornerRadiusTopRight = 12;
+		style.CornerRadiusBottomLeft = 12;
+		style.CornerRadiusBottomRight = 12;
+
+		panel.AddThemeStyleboxOverride("panel", style);
+
+		var hbox = new HBoxContainer();
+		hbox.AddThemeConstantOverride("separation", 16);
+
+		panel.AddChild(hbox);
+
+		var foto = new TextureRect();
+		foto.CustomMinimumSize = new Vector2(120, 120);
 		foto.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
+		foto.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+		foto.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
 
-		if (!string.IsNullOrEmpty(p.FotoPath) && System.IO.File.Exists(p.FotoPath))
+		if (!string.IsNullOrEmpty(p.FotoPath))
 		{
-			Image img = Image.LoadFromFile(p.FotoPath);
-			foto.Texture = ImageTexture.CreateFromImage(img);
+			try
+			{
+				var img = Image.LoadFromFile(p.FotoPath);
+				var tex = ImageTexture.CreateFromImage(img);
+				foto.Texture = tex;
+			}
+			catch
+			{
+				GD.PrintErr("Error cargando imagen: " + p.FotoPath);
+			}
 		}
 
-		panel.AddChild(foto);
+		hbox.AddChild(foto);
 
-		// ---- NOMBRE ----
-		Label nombre = new Label();
-		nombre.Text = p.Nombre;
+		var vbox = new VBoxContainer();
+		vbox.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+
+		hbox.AddChild(vbox);
+
+		var nombre = new Label();
+		nombre.Text = p.Nombre ?? "Sin nombre";
 		nombre.HorizontalAlignment = HorizontalAlignment.Center;
-		panel.AddChild(nombre);
+		nombre.VerticalAlignment = VerticalAlignment.Center;
+		nombre.AutowrapMode = TextServer.AutowrapMode.Word;
+		nombre.AddThemeFontSizeOverride("font_size", 20);
 
-		// ---- CEDULA ----
-		Label cedula = new Label();
-		cedula.Text = p.Cedula;
+		vbox.AddChild(nombre);
+
+		var cedula = new Label();
+		cedula.Text = "Cédula: " + (p.Cedula ?? "-");
 		cedula.HorizontalAlignment = HorizontalAlignment.Center;
-		panel.AddChild(cedula);
+		cedula.VerticalAlignment = VerticalAlignment.Center;
+		cedula.AutowrapMode = TextServer.AutowrapMode.Word;
 
-		_graph.AddChild(panel);
+		vbox.AddChild(cedula);
 
-		// ----- DIBUJAR HIJOS -----
-		int i = 0;
-		foreach (var hijo in p.Hijos.Enumerar())
-		{
-			Vector2 desde = panel.Position + new Vector2(90, 200);
-			Vector2 hasta = CalcularPosicionNodo(nivel + 1, i) + new Vector2(90, 0);
+		var nacido = new Label();
+		nacido.Text = "Fecha Nac: " + (p.FechaNacimiento == DateTime.MinValue ? "No registrada" : p.FechaNacimiento.ToShortDateString());
+		nacido.HorizontalAlignment = HorizontalAlignment.Center;
+		vbox.AddChild(nacido);
 
-			DibujarLinea(desde, hasta);
-			DibujarPersona(hijo, nivel + 1, i);
+		var vive = new Label();
+		vive.Text = "Vive: " + (p.Vive ? "Sí" : "No");
+		vive.HorizontalAlignment = HorizontalAlignment.Center;
+		vbox.AddChild(vive);
 
-			i++;
-		}
-	}
-
-	private Vector2 CalcularPosicionNodo(int nivel, int indice)
-	{
-		return new Vector2(
-			_offset.X + (indice * _horizontalSpacing),
-			_offset.Y + (nivel * _verticalSpacing)
-		);
-	}
-
-	private void DibujarLinea(Vector2 desde, Vector2 hasta)
-	{
-		var linea = new Line2D();
-		linea.Width = 4;
-		linea.DefaultColor = Colors.Black;
-		linea.Points = new Vector2[] { desde, hasta };
-		_graph.AddChild(linea);
-	}
-
-	// ============================================================
-	//                 ABRIR DETALLES DE PERSONA
-	// ============================================================
-
-	private void AbrirDetalles(FamilyMember p)
-	{
-		var escena = ResourceLoader.Load<PackedScene>("res://scenes/DetallesPersona.tscn");
-		var instancia = escena.Instantiate<DetallesPersona>();
-
-		instancia.SetPersona(p);
-
-		GetTree().Root.AddChild(instancia);
-		QueueFree(); // cerrar TreeView
+		return panel;
 	}
 }

@@ -53,7 +53,7 @@ public partial class DetallesPersona : Control
 
 	private void OnVolverPressed()
 	{
-		GetTree().ChangeSceneToFile("res://scenes/ListaPersonas.tscn");
+		GetTree().ChangeSceneToFile("res://scenes/TreeView.tscn");
 	}
 
 	private void OnEliminarPressed()
@@ -63,6 +63,6 @@ public partial class DetallesPersona : Control
 		Main.Instance.Arbol.EliminarPersona(_persona);
 		Main.Instance.GuardarArbolEnDisco();
 
-		GetTree().ChangeSceneToFile("res://scenes/ListaPersonas.tscn");
+		GetTree().ChangeSceneToFile("res://scenes/TreeView.tscn");
 	}
 }
