@@ -26,7 +26,6 @@ public partial class AgregarPersona : Control
 		_padreCombo = GetNode<OptionButton>("MarginContainer/VBoxContainer/PadreCont/PadreCombo");
 		_madreCombo = GetNode<OptionButton>("MarginContainer/VBoxContainer/MadreCont/MadreCombo");
 
-		// nuevos inputs para coordenadas
 		_latInput = GetNode<LineEdit>("MarginContainer/VBoxContainer/CoordCont/LatInput");
 		_lonInput = GetNode<LineEdit>("MarginContainer/VBoxContainer/CoordCont/LonInput");
 
@@ -69,13 +68,14 @@ public partial class AgregarPersona : Control
 		_padreCombo.AddItem("Sin asignar", -1);
 		_madreCombo.AddItem("Sin asignar", -1);
 
-		var lista = Main.Instance.Arbol.Personas;
-		for (int i = 0; i < lista.Count; i++)
+		// Personas es ListaEnlazada<FamilyMember>
+		int index = 0;
+		foreach (var p in Main.Instance.Arbol.Personas.Enumerar())
 		{
-			var p = lista[i];
 			string texto = $"{p.Nombre} ({p.Cedula})";
-			_padreCombo.AddItem(texto, i);
-			_madreCombo.AddItem(texto, i);
+			_padreCombo.AddItem(texto, index);
+			_madreCombo.AddItem(texto, index);
+			index++;
 		}
 	}
 
@@ -93,38 +93,33 @@ public partial class AgregarPersona : Control
 		DateTime fechaNacimiento = DateTime.MinValue;
 		DateTime.TryParse(_fechaInput.Text, out fechaNacimiento);
 
-		var nuevaPersona = new Persona(nombre, cedula)
+
+		double lat = 0, lon = 0;
+		double.TryParse(_latInput.Text, out lat);
+		double.TryParse(_lonInput.Text, out lon);
+
+		var nuevaPersona = new FamilyMember(cedula, nombre, lat, lon, _fotoPath)
 		{
 			Vive = _viveCheck.ButtonPressed,
-			FechaNacimiento = fechaNacimiento,
-			FotoPath = _fotoPath
+			FechaNacimiento = fechaNacimiento
 		};
 
-		// coordenadas (si las puso)
-		double lat = 0, lon = 0;
-		if (double.TryParse(_latInput.Text, out lat) && double.TryParse(_lonInput.Text, out lon))
-		{
-			nuevaPersona.Coordenadas = (lat, lon);
-		}
-
-		// padre/madre
-		Persona padre = null;
+		FamilyMember padre = null;
 		int padreItem = _padreCombo.GetSelected();
 		if (padreItem > 0)
 		{
 			int padreRealIndex = _padreCombo.GetItemId(padreItem);
-			padre = Main.Instance.Arbol.Personas[padreRealIndex];
+			padre = ObtenerPersonaPorIndice(padreRealIndex);
 		}
 
-		Persona madre = null;
+		FamilyMember madre = null;
 		int madreItem = _madreCombo.GetSelected();
 		if (madreItem > 0)
 		{
 			int madreRealIndex = _madreCombo.GetItemId(madreItem);
-			madre = Main.Instance.Arbol.Personas[madreRealIndex];
+			madre = ObtenerPersonaPorIndice(madreRealIndex);
 		}
 
-		// validaciones
 		if (padre != null && Main.Instance.Arbol.EstanRelacionados(nuevaPersona, padre))
 		{
 			GD.PrintErr("Asignar este padre crearía un ciclo en el árbol.");
@@ -138,12 +133,24 @@ public partial class AgregarPersona : Control
 
 		Main.Instance.Arbol.AgregarFamiliar(nuevaPersona, padre, madre);
 
-		// guardar en disco
+
 		Main.Instance.GuardarArbolEnDisco();
 
 		GD.Print($"Persona agregada: {nuevaPersona.Nombre}");
 
 		GetTree().ChangeSceneToFile("res://scenes/PanelPrincipal.tscn");
+	}
+
+	private FamilyMember ObtenerPersonaPorIndice(int idx)
+	{
+		int i = 0;
+		foreach (var p in Main.Instance.Arbol.Personas.Enumerar())
+		{
+			if (i == idx)
+				return p;
+			i++;
+		}
+		return null;
 	}
 
 	private void OnVolverPressed()

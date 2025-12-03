@@ -10,6 +10,13 @@ public class FamilyMember
 	public double Longitud { get; set; }
 	public string FotoPath { get; set; }
 
+	public DateTime FechaNacimiento { get; set; }
+	public bool Vive { get; set; }
+
+	public FamilyMember Padre { get; set; }
+	public FamilyMember Madre { get; set; }
+	public ListaEnlazada<FamilyMember> Hijos { get; set; } = new ListaEnlazada<FamilyMember>();
+
 	public FamilyMember(string cedula, string nombre, double lat, double lon, string fotoPath = "")
 	{
 		Cedula = cedula;
@@ -83,6 +90,42 @@ public class ListaEnlazada<T>
 			actual = actual.Next!;
 		}
 	}
+
+	public bool Eliminar(T dato)
+	{
+		if (Head == null)
+		{
+			return false;
+		}
+
+		if (Head.Value!.Equals(dato))
+		{
+			Head = Head.Next;
+			if (Head == null)
+			{
+				Tail = null;
+			}
+			size--;
+			return true;
+		}
+
+		Nodo<T> actual = Head;
+		while (actual.Next != null)
+		{
+			if (actual.Next.Value!.Equals(dato))
+			{
+				actual.Next = actual.Next.Next;
+				if (actual.Next == null)
+				{
+					Tail = actual;
+				}
+				size--;
+				return true;
+			}
+			actual = actual.Next;
+		}
+		return false;
+	}
 }
 
 
@@ -97,6 +140,34 @@ public class GrafoFamilia
 		{
 			adyacencia[miembro] = new ListaEnlazada<FamilyMember>();
 		}
+	}
+	
+	public void QuitarRelacion(FamilyMember a, FamilyMember b, bool bidireccional = true)
+	{
+		if (adyacencia.ContainsKey(a))
+		{
+			adyacencia[a].Eliminar(b);
+		}
+
+		if (bidireccional && adyacencia.ContainsKey(b))
+		{
+			adyacencia[b].Eliminar(a);
+		}
+	}
+
+	public void EliminarNodo(FamilyMember miembro)
+	{
+		if (!adyacencia.ContainsKey(miembro))
+			return;
+
+		// Quitarlo de las listas de todos los demás
+		foreach (var lista in adyacencia.Values)
+		{
+			lista.Eliminar(miembro);
+		}
+
+		// Quitar su propia entrada
+		adyacencia.Remove(miembro);
 	}
 
 	public void AgregarArista(FamilyMember a, FamilyMember b, bool bidireccional = true)

@@ -3,7 +3,8 @@ using System;
 
 public partial class DetallesPersona : Control
 {
-	private Persona _persona;
+	private FamilyMember _persona;
+
 	private Label _nombre;
 	private Label _cedula;
 	private Label _fecha;
@@ -27,16 +28,20 @@ public partial class DetallesPersona : Control
 		if (eliminarBtn != null) eliminarBtn.Pressed += OnEliminarPressed;
 	}
 
-	public void SetPersona(Persona p)
+	public void SetPersona(FamilyMember p)
 	{
 		_persona = p;
 		if (_persona == null) return;
 
 		_nombre.Text = $"Nombre: {p.Nombre}";
 		_cedula.Text = $"Cédula: {p.Cedula}";
+
+
 		_fecha.Text = $"Fecha Nac: {(p.FechaNacimiento == DateTime.MinValue ? "No registrada" : p.FechaNacimiento.ToShortDateString())}";
 		_vive.Text = $"Vive: {(p.Vive ? "Sí" : "No")}";
-		_ubicacion.Text = $"Coords: {p.Coordenadas.lat}, {p.Coordenadas.lon}";
+
+
+		_ubicacion.Text = $"Coords: {p.Latitud}, {p.Longitud}";
 
 		if (!string.IsNullOrEmpty(p.FotoPath) && System.IO.File.Exists(p.FotoPath))
 		{

@@ -1,5 +1,6 @@
 using Godot;
-using System.Collections.Generic;
+using System;
+using System.Collections.Generic; 
 
 public partial class Estadisticas : Control
 {
@@ -29,10 +30,14 @@ public partial class Estadisticas : Control
 	{
 		var grafo = ConstruirGrafoDesdePersonas();
 
-		// IMPORTANTE: convertir a List para poder usar .Count y [i]
-		var miembros = new List<FamilyMember>(grafo.ObtenerTodosLosMiembros());
 
-		if (miembros.Count < 2)
+		int count = 0;
+		foreach (var _ in grafo.ObtenerTodosLosMiembros())
+		{
+			count++;
+		}
+
+		if (count < 2)
 		{
 			_masLejosLabel.Text  = "Par más lejano: No hay suficientes familiares con coordenadas.";
 			_masCercaLabel.Text  = "Par más cercano: No hay suficientes familiares con coordenadas.";
@@ -40,8 +45,8 @@ public partial class Estadisticas : Control
 			return;
 		}
 
-		var parLejano  = grafo.ParMasLejano();     // (FamilyMember, FamilyMember, double)
-		var parCercano = grafo.ParMasCercano();    // (FamilyMember, FamilyMember, double)
+		var parLejano  = grafo.ParMasLejano();  
+		var parCercano = grafo.ParMasCercano();  
 		double promedio = grafo.DistanciaPromedio();
 
 		_masLejosLabel.Text =
@@ -57,35 +62,39 @@ public partial class Estadisticas : Control
 	private GrafoFamilia ConstruirGrafoDesdePersonas()
 	{
 		var grafo = new GrafoFamilia();
-		var mapaCedulaMiembro = new Dictionary<string, FamilyMember>();
 
-		foreach (var persona in Main.Instance.Arbol.Personas)
+		foreach (var persona in Main.Instance.Arbol.Personas.Enumerar())
 		{
-			// Coordenadas es un tuple (double lat, double lon), no puede ser null.
-			// Si quieres saltar personas "sin coordenadas", usa una condición como esta:
-			var coords = persona.Coordenadas;
-
-			// Ajusta esto si 0,0 puede ser una coordenada válida para vos.
-			if (coords.lat == 0 && coords.lon == 0)
+			if (persona.Latitud == 0 && persona.Longitud == 0)
 				continue;
 
 			var fm = new FamilyMember(
 				persona.Cedula,
 				persona.Nombre,
-				coords.lat,
-				coords.lon,
+				persona.Latitud,
+				persona.Longitud,
 				persona.FotoPath
 			);
 
 			grafo.AgregarNodo(fm);
-			mapaCedulaMiembro[persona.Cedula] = fm;
 		}
 
-		// Grafo completo: todos conectados con todos
-		var miembros = new List<FamilyMember>(grafo.ObtenerTodosLosMiembros());
-		for (int i = 0; i < miembros.Count; i++)
+		IEnumerable<FamilyMember> miembrosEnum = grafo.ObtenerTodosLosMiembros();
+
+		int total = 0;
+		foreach (var _ in miembrosEnum)
+			total++;
+
+		FamilyMember[] miembros = new FamilyMember[total];
+		int k = 0;
+		foreach (var m in grafo.ObtenerTodosLosMiembros())
 		{
-			for (int j = i + 1; j < miembros.Count; j++)
+			miembros[k++] = m;
+		}
+
+		for (int i = 0; i < total; i++)
+		{
+			for (int j = i + 1; j < total; j++)
 			{
 				grafo.AgregarArista(miembros[i], miembros[j]);
 			}
